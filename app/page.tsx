@@ -10,8 +10,8 @@ import Footer from "@/components/Footer";
 
 
 export const metadata: Metadata = {
-  title: "ShahMotors | Ireland's Premium Used Car Dealer",
-  description: "Shop verified used cars in Dublin and across Ireland with ShahMotors. Transparent pricing, finance support, and NCT-ready vehicles.",
+  title: "Ruma Nest Property | Dubai's Premium Property Dealer",
+  description: "The premier verified listing platform in Abu Dhabi. We connect thousands of property owners, roommates, and car lifters every single day with secure, direct communications.",
   keywords: [
     "used cars Dublin",
     "Ireland car dealership",
