@@ -56,7 +56,7 @@ export default function HomePage() {
     // Categories based on screenshot
     const categories = [
         { id: 'Room', label: 'Room', icon: Home },
-        { id: 'Partition', label: 'Partition', icon: Columns },
+        // { id: 'Partition', label: 'Partition', icon: Columns },
         { id: 'Studio', label: 'Studio', icon: Grid },
         { id: 'Bed Space', label: 'Bed Space', icon: Bed },
         { id: 'Apartment', label: 'Apartment', icon: Building2 },
@@ -168,14 +168,14 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch relative gap-8 lg:gap-0">
 
                     {/* Left Content Area (Light clean background) */}
-                    <div className="lg:col-span-5 py-8 md:py-16 flex flex-col justify-between space-y-8 z-20 bg-white dark:bg-slate-950 relative overflow-hidden">
+                    <div className="lg:col-span-5 py-8 md:py-16 flex flex-col justify-between space-y-8 z-20 bg-white dark:bg-slate-950 relative">
     
                         {/* Background Image Layer */}
                         <div 
                             className="lg:hidden block absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
                             style={{ backgroundImage: `url('/images/header-image.webp')` }}
                         />
-                        <div className="hidden sm:block lg:hidden absolute top-4 right-4 md:top-6 md:right-6 z-30 max-w-[140px] sm:max-w-[180px] lg:max-w-[220px]">
+                        <div className="hidden sm:block lg:hidden absolute top-4 right-4 md:top-6 md:right-6 z-30 max-w-35 sm:max-w-45 lg:max-w-55">
                             <img src="/images/header-badge.webp" alt="ALL POPULAR AREAS Badge" className='w-full h-auto' />
                         </div>
                         
@@ -200,7 +200,7 @@ export default function HomePage() {
                         </div>
 
                         <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg pl-8 lg:pl-0 max-w-md leading-relaxed font-semibold z-10">
-                            Rooms, Partitions, Studios, Apartments <br className="hidden sm:inline" />
+                            Rooms, Bed Space, Studios, Apartments <br className="hidden sm:inline" />
                             & Car Lift – <span className="text-[#ff1d6c] font-black">All in One Place.</span>
                         </p>
 
@@ -208,7 +208,7 @@ export default function HomePage() {
                         <div className="flex flex-col sm:flex-row flex-wrap lg:flex-nowrap gap-3 pt-6 lg:pt-12 px-8 lg:px-0 z-50">
 
                             {/* Pill 1: Verified Listings */}
-                            <div className="bg-[#062453] text-white p-4 sm:p-5 rounded-2xl flex flex-1 items-center gap-3 border border-slate-800 shadow-lg hover:scale-[1.02] transition-transform duration-200 min-w-[200px]">
+                            <div className="bg-[#062453] text-white p-4 sm:p-5 rounded-2xl flex flex-1 items-center gap-3 border border-slate-800 shadow-lg hover:scale-[1.02] transition-transform duration-200 min-w-55">
                                 <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-white shrink-0" />
                                 <div className="leading-tight">
                                     <h4 className="text-sm font-extrabold text-white">Verified Listings</h4>
@@ -218,7 +218,7 @@ export default function HomePage() {
 
                             {/* Pill 2: Direct Contact WhatsApp */}
                             <a href="https://wa.me/971501234567" target="_blank" rel="noreferrer"
-                                className="bg-[#ff1d6c] hover:bg-pink-600 text-white p-4 sm:p-5 rounded-2xl flex flex-1 items-center gap-3 shadow-lg hover:scale-[1.02] transition-transform duration-200 min-w-[200px]">
+                                className="bg-[#ff1d6c] hover:bg-pink-600 text-white p-4 sm:p-5 rounded-2xl flex flex-1 items-center gap-3 shadow-lg hover:scale-[1.02] transition-transform duration-200 min-w-55">
                                 <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10 text-white shrink-0" />
                                 <div className="leading-tight">
                                     <h4 className="text-sm font-extrabold text-white">Direct Contact</h4>
@@ -227,7 +227,7 @@ export default function HomePage() {
                             </a>
 
                             {/* Pill 3: Quick & Easy Post */}
-                            <div className="bg-[#062453] text-white p-4 sm:p-5 rounded-2xl flex flex-1 items-center gap-3 border border-slate-800 shadow-lg hover:scale-[1.02] transition-transform duration-200 cursor-pointer min-w-[200px]">
+                            <div className="bg-[#062453] text-white p-4 sm:p-5 rounded-2xl flex flex-1 items-center gap-3 border border-slate-800 shadow-lg hover:scale-[1.02] transition-transform duration-200 cursor-pointer min-w-50">
                                 <Zap className="w-8 h-8 sm:w-10 sm:h-10 text-white shrink-0" />
                                 <div className="leading-tight">
                                     <h4 className="text-sm font-extrabold text-white">Quick & Easy</h4>
@@ -239,19 +239,19 @@ export default function HomePage() {
                     </div>
 
                     {/* Right Skyline Section with Gradient Mask Blending into Left Column */}
-                    <div className="hidden lg:block lg:col-span-7 relative overflow-hidden h-[300px] sm:h-[400px] lg:h-auto min-h-[300px] rounded-3xl lg:rounded-none">
+                    <div className="hidden lg:block lg:col-span-7 relative overflow-hidden h-75 sm:h-100 lg:h-auto min-h-75 rounded-3xl lg:rounded-none">
 
                         {/* High Quality Skyline Image */}
                         <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_90%,transparent_100%),linear-gradient(to_right,black_90%,transparent_100%)] [mask-composite:intersect]">
                             <img src="/images/header-image.webp"
                                 alt="Abu Dhabi Etihad Towers Sunset Skyline"
                                 className="w-full h-full object-cover object-center" />
-                            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/50 to-transparent hidden lg:block"></div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent lg:hidden"></div>
+                            <div className="absolute inset-0 bg-linear-to-r from-white via-white/50 to-transparent hidden lg:block"></div>
+                            <div className="absolute inset-0 bg-linear-to-t from-white via-white/40 to-transparent lg:hidden"></div>
                         </div>
 
                         {/* ALL POPULAR AREAS Badge */}
-                        <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 max-w-[140px] sm:max-w-[180px] lg:max-w-[220px]">
+                        <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30 max-w-35 sm:max-w-45 lg:max-w-55">
                             <img src="/images/header-badge.webp" alt="ALL POPULAR AREAS Badge" className='w-full h-auto' />
                         </div>
 
@@ -306,7 +306,7 @@ export default function HomePage() {
                             <div className="hidden lg:block h-20 w-0.5 bg-slate-200 mx-4 align-middle self-center mt-6" />
 
                             {/* Right Box: Enter Location Input & Action Trigger */}
-                            <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-end gap-4 lg:min-w-[450px]">
+                            <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-end gap-4 lg:min-w-112.5">
                             
                                 {/* Input Location Frame */}
                                 <div className="flex-1 flex flex-col gap-3 relative">

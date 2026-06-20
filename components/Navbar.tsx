@@ -28,7 +28,7 @@ export default function App() {
   return (
     <div className={`font-sans transition-colors duration-300 ${darkMode ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900' }`}>
         {/* OUTER WRAPPER CONTAINER mimicking the image's rounded black frame context */}
-        <div className="max-w-full mx-auto p-0 md:p-3">
+        <div className="max-w-full mx-auto p-0 md:p-3 bg-black">
             <div className="bg-white dark:bg-slate-950 md:rounded-[40px] overflow-hidden flex flex-col justify-between">
 
                 {/* HEADER SECTION */}
@@ -69,20 +69,20 @@ export default function App() {
                         {/* Desktop Navigation Links */}
                         <nav className="hidden xl:flex items-center gap-1.5 text-base font-bold">
                             {[
-                                { name: 'Home', href: '#' },
-                                { name: 'Find Property', href: '#' },
-                                { name: 'Need Property', href: '#' },
-                                { name: 'List Property', href: '#' },
-                                { name: 'Car Lift', href: '#' },
-                                { name: 'Roommate Finder', href: '#' }
+                                { name: 'Home', href: '/' },
+                                { name: 'Find Property', href: '/properties' },
+                                { name: 'Need Property', href: '/need-property' },
+                                { name: 'List Property', href: '/list-property' },
+                                { name: 'Car Lift', href: '/car-lifts' },
+                                { name: 'Roommate Finder', href: '/roommate-finder' }
                             ].map((item) => (
-                                <a
+                                <Link
                                 key={item.name}
                                 href={item.href}
                                 className="px-4 py-2 rounded-full transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10"
                                 >
                                 {item.name}
-                                </a>
+                                </Link>
                             ))}
                         </nav>
 
@@ -123,21 +123,21 @@ export default function App() {
                     <div className="xl:hidden relative w-full bg-[#061329] border-t border-slate-800 text-white shadow-inner transition-all duration-200 z-50">
                         <div className="flex flex-col p-4 gap-1">
                             {[
-                                { name: 'Home', href: '#' },
-                                { name: 'Find Property', href: '#' },
-                                { name: 'Need Property', href: '#' },
-                                { name: 'List Property', href: '#' },
-                                { name: 'Car Lift', href: '#' },
-                                { name: 'Roommate Finder', href: '#' }
+                                { name: 'Home', href: '/' },
+                                { name: 'Find Property', href: '/properties' },
+                                { name: 'Need Property', href: '/need-property' },
+                                { name: 'List Property', href: '/list-property' },
+                                { name: 'Car Lift', href: '/car-lifts' },
+                                { name: 'Roommate Finder', href: '/roommate-finder' }
                             ].map((item) => (
-                                <a
+                                <Link
                                 key={item.name}
                                 href={item.href}
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="w-full text-left px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all hover:bg-white/10 text-slate-300 hover:text-white"
                                 >
                                 {item.name}
-                                </a>
+                                </Link>
                             ))}
                         </div>
                     </div>

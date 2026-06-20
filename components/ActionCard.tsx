@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
 import { 
   MapPin, 
   Users, 
@@ -13,6 +13,7 @@ import {
   Shield, 
   MessageSquare, 
   X,
+    Loader2,
   Sparkles,
   Building
 } from 'lucide-react';
@@ -34,6 +35,11 @@ interface PropertyListingForm {
   price: string;
   whatsapp: string;
   description: string;
+}
+
+interface Suggestion {
+    formatted: string;
+    place_id: string;
 }
 
 export default function App() {
@@ -61,13 +67,22 @@ export default function App() {
     description: ''
   });
 
+    // Autocomplete state for modal Location field (Geoapify)
+    const [searchQuery, setSearchQuery] = useState('');
+    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+    const [isApiLoading, setIsApiLoading] = useState(false);
+    const [isLocationOpen, setIsLocationOpen] = useState(false);
+    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+    const dubaiBoundingBox = "54.85,24.75,55.55,25.35";
+    const [searchSelectedAt, setSearchSelectedAt] = useState<number | null>(null);
+
   // Success Feedback Messages
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Mock Dropdown Options
   const locations: string[] = ['Khalidiya', 'Al Reem Island', 'Al Muroor', 'Yas Island', 'Hamdan Street', 'Mussafah'];
   const occupancies: string[] = ['Solo Male', 'Solo Female', 'Couple', '2 Shared', '3+ Shared'];
-  const propertyTypes: string[] = ['Room', 'Partition', 'Studio', 'Bed Space', 'Apartment'];
+  const propertyTypes: string[] = ['Room', 'Studio', 'Bed Space', 'Apartment'];
   const nationalities: string[] = ['Any Nationality', 'Arab', 'Asian', 'European', 'Indian / Pakistani', 'African'];
   const budgets: string[] = ['AED 500 - 1,000', 'AED 1,000 - 2,000', 'AED 2,000 - 3,500', 'AED 3,500 - 5,000', 'AED 5,000+'];
   const moveInTimes: string[] = ['Immediately', 'Within 1 Week', 'Within 2 Weeks', 'Next Month'];
@@ -95,9 +110,118 @@ export default function App() {
     setTimeout(() => setSuccessMessage(null), 5000);
   };
 
+    const selectLocationHandler = (loc: string) => {
+        setPropertyForm(prev => ({ ...prev, location: loc }));
+        setSearchQuery(loc);
+        setIsLocationOpen(false);
+        setSuggestions([]);
+        setSearchSelectedAt(Date.now());
+    };
+
+    const clearInputHandler = () => {
+        setPropertyForm(prev => ({ ...prev, location: '' }));
+        setSearchQuery('');
+        setSuggestions([]);
+        setIsLocationOpen(false);
+    };
+
+    useEffect(() => {
+        if (!searchQuery || searchQuery.length < 3) {
+            setSuggestions([]);
+            return;
+        }
+
+        // Skip immediate fetch if user just selected a suggestion
+        if (searchSelectedAt && Date.now() - searchSelectedAt < 500) {
+            return;
+        }
+
+        if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+        debounceTimeout.current = setTimeout(async () => {
+            setIsApiLoading(true);
+            try {
+                const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
+                const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(searchQuery)}&filter=rect:${dubaiBoundingBox}&bias=countrycode:ae&limit=5&apiKey=${apiKey}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.features) {
+                    const mapped = data.features.map((f: any) => ({ formatted: f.properties.formatted, place_id: f.properties.place_id }));
+                    setSuggestions(mapped);
+                    setIsLocationOpen(true);
+                }
+            } catch (err) {
+                console.error('Error fetching locations:', err);
+            } finally {
+                setIsApiLoading(false);
+            }
+        }, 350);
+
+        return () => {
+            if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+        };
+    }, [searchQuery]);
+
   const toggleDropdown = (id: string) => {
     setActiveDropdown(prev => (prev === id ? null : id));
   };
+
+    // Left-card (requirement) autocomplete state
+    const [leftQuery, setLeftQuery] = useState('');
+    const [leftSuggestions, setLeftSuggestions] = useState<Suggestion[]>([]);
+    const [leftIsLoading, setLeftIsLoading] = useState(false);
+    const [leftIsLocationOpen, setLeftIsLocationOpen] = useState(false);
+    const leftDebounce = useRef<NodeJS.Timeout | null>(null);
+    const [leftSelectedAt, setLeftSelectedAt] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!leftQuery || leftQuery.length < 3) {
+            setLeftSuggestions([]);
+            return;
+        }
+        // Skip immediate fetch if user just selected a suggestion
+        if (leftSelectedAt && Date.now() - leftSelectedAt < 500) {
+            return;
+        }
+        if (leftDebounce.current) clearTimeout(leftDebounce.current);
+        leftDebounce.current = setTimeout(async () => {
+            setLeftIsLoading(true);
+            try {
+                const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
+                const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(leftQuery)}&filter=rect:${dubaiBoundingBox}&bias=countrycode:ae&limit=5&apiKey=${apiKey}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.features) {
+                    const mapped = data.features.map((f: any) => ({ formatted: f.properties.formatted, place_id: f.properties.place_id }));
+                    setLeftSuggestions(mapped);
+                    setLeftIsLocationOpen(true);
+                }
+            } catch (err) {
+                console.error('Error fetching left locations:', err);
+            } finally {
+                setLeftIsLoading(false);
+            }
+        }, 350);
+
+        return () => {
+            if (leftDebounce.current) clearTimeout(leftDebounce.current);
+        };
+    }, [leftQuery]);
+
+    const selectLeftLocation = (loc: string) => {
+        setRequirement(prev => ({ ...prev, location: loc }));
+        setLeftQuery(loc);
+        setLeftIsLocationOpen(false);
+        setLeftSuggestions([]);
+        setLeftSelectedAt(Date.now());
+    };
+
+    const clearLeftInput = () => {
+        setRequirement(prev => ({ ...prev, location: '' }));
+        setLeftQuery('');
+        setLeftSuggestions([]);
+        setLeftIsLocationOpen(false);
+    };
 
   return (
     <div className="w-full container mx-auto py-0 pb-5 px-4 sm:px-6 lg:px-8 font-sans">
@@ -150,36 +274,49 @@ export default function App() {
                             <form onSubmit={handleRequirementSubmit} className="space-y-6">
                                 <div className="grid grid-cols-2 gap-3">
                                     
-                                    {/* Dropdown 1: Location */}
+                                    {/* Dropdown 1: Location (autocomplete) */}
                                     <div className="relative">
-                                        <button
-                                            type="button"
-                                            onClick={() => toggleDropdown('location')}
-                                            className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:border-slate-200 transition-all text-left flex items-start gap-2.5 cursor-pointer"
-                                        >
+                                        <div className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:border-slate-200 transition-all text-left flex items-start gap-2.5">
                                             <div className="px-1 bg-pink-50 rounded-lg text-[#ff0066]">
                                                 <MapPin className="w-8 h-8" />
                                             </div>
-                                            <div className="truncate min-w-0">
+                                            <div className="truncate min-w-0 flex-1">
                                                 <p className="text-sm font-black tracking-wider text-slate-800 uppercase leading-none">Location</p>
-                                                <span className="text-sm font-bold text-slate-400 mt-1 block truncate">
-                                                    {requirement.location || 'Where?'}
-                                                </span>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Where?"
+                                                    value={leftQuery}
+                                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLeftQuery(e.target.value)}
+                                                    onFocus={() => leftQuery.length >= 3 && setLeftIsLocationOpen(true)}
+                                                    className="text-sm font-bold text-slate-400 mt-1 block truncate bg-transparent focus:outline-none w-full"
+                                                />
                                             </div>
-                                        </button>
-                                    
-                                        {activeDropdown === 'location' && (
+                                            {leftIsLoading && <Loader2 className="w-5 h-5 text-[#ff0066] animate-spin shrink-0" />}
+                                            {leftQuery && !leftIsLoading && (
+                                                <button type="button" onClick={clearLeftInput} className="ml-2 p-1 rounded hover:bg-slate-100">
+                                                    <X className="w-4 h-4 text-slate-500" />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {leftIsLocationOpen && leftSuggestions.length > 0 && (
                                             <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-100 rounded-xl shadow-xl z-30 max-h-48 overflow-y-auto">
-                                                {locations.map(loc => (
+                                                {leftSuggestions.map(s => (
                                                     <button
-                                                        key={loc}
+                                                        key={s.place_id}
                                                         type="button"
-                                                        onClick={() => handleDropdownSelect('location', loc)}
+                                                        onClick={() => selectLeftLocation(s.formatted)}
                                                         className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-pink-50 hover:text-[#ff0066] transition-colors"
                                                     >
-                                                        {loc}
+                                                        {s.formatted}
                                                     </button>
                                                 ))}
+                                            </div>
+                                        )}
+
+                                        {leftIsLocationOpen && leftQuery.length >= 3 && leftSuggestions.length === 0 && !leftIsLoading && (
+                                            <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-100 rounded-xl shadow-xl z-30 p-3 text-center text-xs font-medium text-slate-400">
+                                                No locations found inside Dubai
                                             </div>
                                         )}
                                     </div>
@@ -254,36 +391,26 @@ export default function App() {
 
                                     {/* Dropdown 4: Nationality */}
                                     <div className="relative">
-                                        <button
-                                            type="button"
-                                            onClick={() => toggleDropdown('nationality')}
-                                            className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:border-slate-200 transition-all text-left flex items-start gap-2.5 cursor-pointer"
-                                        >
+                                        <div className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:border-slate-200 transition-all text-left flex items-start gap-2.5">
                                             <div className="px-1 bg-pink-50 rounded-lg text-[#ff0066]">
                                                 <Globe className="w-8 h-8" />
                                             </div>
-                                            <div className="truncate min-w-0">
+                                            <div className="truncate min-w-0 flex-1">
                                                 <p className="text-sm font-black tracking-wider text-slate-800 uppercase leading-none">Nationality</p>
-                                                <span className="text-sm font-bold text-slate-400 mt-1 block truncate">
-                                                    {requirement.nationality || 'Optional'}
-                                                </span>
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g., Any Nationality, Arab, Asian..."
+                                                    value={requirement.nationality}
+                                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setRequirement(prev => ({ ...prev, nationality: e.target.value }))}
+                                                    className="text-sm font-bold text-slate-400 mt-1 block truncate bg-transparent focus:outline-none w-full"
+                                                />
                                             </div>
-                                        </button>
-
-                                        {activeDropdown === 'nationality' && (
-                                            <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-100 rounded-xl shadow-xl z-30 max-h-48 overflow-y-auto">
-                                                {nationalities.map(nat => (
-                                                    <button
-                                                        key={nat}
-                                                        type="button"
-                                                        onClick={() => handleDropdownSelect('nationality', nat)}
-                                                        className="w-full px-4 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-pink-50 hover:text-[#ff0066] transition-colors"
-                                                    >
-                                                        {nat}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
+                                            {requirement.nationality && (
+                                                <button type="button" onClick={() => setRequirement(prev => ({ ...prev, nationality: '' }))} className="ml-2 p-1 rounded hover:bg-slate-100">
+                                                    <X className="w-4 h-4 text-slate-500" />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* Dropdown 5: Budget */}
@@ -523,17 +650,49 @@ export default function App() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Location Area</label>
-                <select
-                  value={propertyForm.location}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) => setPropertyForm(prev => ({ ...prev, location: e.target.value }))}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
-                >
-                  <option value="">Choose Area...</option>
-                  {locations.map(l => <option key={l} value={l}>{l}</option>)}
-                </select>
-              </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Location Area</label>
+                                <div className="relative">
+                                    <div className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all flex items-center gap-2.5">
+                                        <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                                        <input
+                                            type="text"
+                                            placeholder="Type area (e.g., Khalidiya, Yas Island)..."
+                                            value={searchQuery}
+                                            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                                            onFocus={() => searchQuery.length >= 3 && setIsLocationOpen(true)}
+                                            className="w-full bg-transparent h-full text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
+                                        />
+                                        {isApiLoading && <Loader2 className="w-4 h-4 text-slate-500 animate-spin shrink-0" />}
+                                        {searchQuery && !isApiLoading && (
+                                            <button type="button" onClick={clearInputHandler} className="p-0.5 hover:bg-slate-200 rounded-full shrink-0 cursor-pointer">
+                                                <X className="w-3.5 h-3.5 text-slate-500" />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {isLocationOpen && suggestions.length > 0 && (
+                                        <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden max-h-60 overflow-y-auto p-1">
+                                            {suggestions.map(item => (
+                                                <button
+                                                    key={item.place_id}
+                                                    type="button"
+                                                    onClick={() => selectLocationHandler(item.formatted)}
+                                                    className={`w-full px-3 py-2 text-left text-sm font-medium cursor-pointer rounded-xl transition-all flex items-center justify-between ${propertyForm.location === item.formatted ? 'bg-rose-50 text-[#ff0066] font-semibold' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                                    <span className="truncate pr-2">{item.formatted}</span>
+                                                    {propertyForm.location === item.formatted && <Check className="w-4 h-4 text-[#ff0066] shrink-0" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {isLocationOpen && searchQuery.length >= 3 && suggestions.length === 0 && !isApiLoading && (
+                                        <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 p-4 text-center text-xs font-medium text-slate-400">
+                                            No locations found inside Dubai
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">WhatsApp Number</label>
