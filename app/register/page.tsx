@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import "../globals.css";
 import Navbar from '@/components/Navbar';
-import AllProperties from '@/components/AllProperties';
 import Footer from '@/components/Footer';
+import RegisterForm from '@/components/RegisterForm';
 
 export const metadata: Metadata = {
-  title: 'Properties | Ruma Nest',
-  description: 'Browse listed properties on Ruma Nest',
+  title: 'Register | Ruma Nest',
+  description: 'Create a new account on Ruma Nest',
 };
 
 export default function Page() {
@@ -24,8 +24,7 @@ export default function Page() {
       <Navbar />
 
       <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-black mb-6">Properties</h1>
-        <AllProperties />
+        <RegisterForm />
       </main>
 
       <Footer />

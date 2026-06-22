@@ -1,6 +1,9 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react'
+import { client } from '@/sanity/lib/client'
+import { urlFor } from '@/sanity/lib/image'
 import { 
   Shield, 
   MessageSquare, 
@@ -15,7 +18,8 @@ import {
   Phone,
   Building,
   CheckCircle,
-  Car,
+    Car,
+    User,
   Filter
 } from 'lucide-react';
 
@@ -24,6 +28,34 @@ export default function App() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('Home');
     const [favorites, setFavorites] = useState([]);
+    const { data: session } = useSession()
+    const [avatarUrl, setAvatarUrl] = useState('')
+
+    useEffect(() => {
+        const email = session?.user?.email
+        if (!email) {
+            setAvatarUrl('')
+            return
+        }
+
+        let mounted = true
+
+        const fetchAvatar = async () => {
+            try {
+                const user = await client.fetch(`*[_type == \"user\" && email == $email][0]{avatar}`, { email })
+                if (!mounted) return
+                if (user?.avatar) {
+                    setAvatarUrl(urlFor(user.avatar).width(200).height(200).url())
+                }
+            } catch (err) {
+                // ignore
+            }
+        }
+
+        fetchAvatar()
+
+        return () => { mounted = false }
+    }, [session?.user?.email])
 
   return (
     <div className={`font-sans transition-colors duration-300 ${darkMode ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900' }`}>
@@ -70,11 +102,9 @@ export default function App() {
                         <nav className="hidden xl:flex items-center gap-1.5 text-base font-bold">
                             {[
                                 { name: 'Home', href: '/' },
-                                { name: 'Find Property', href: '/properties' },
-                                { name: 'Need Property', href: '/need-property' },
-                                { name: 'List Property', href: '/list-property' },
-                                { name: 'Car Lift', href: '/car-lifts' },
-                                { name: 'Roommate Finder', href: '/roommate-finder' }
+                                { name: 'Properties', href: '/properties' },
+                                { name: 'Roommate Finder', href: '/list-property' },
+                                { name: 'Car Lift', href: '/car-lifts' }
                             ].map((item) => (
                                 <Link
                                 key={item.name}
@@ -107,6 +137,21 @@ export default function App() {
                                     </span>
                                     )}
                             </button>
+
+                            {/* Show user avatar when logged in, otherwise show login icon */}
+                            {session?.user?.email ? (
+                                <Link href="/profile" className="p-0 rounded-full overflow-hidden">
+                                    <img
+                                        src={avatarUrl || '/images/status-1.avif'}
+                                        alt={session?.user?.name ?? 'User'}
+                                        className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                                    />
+                                </Link>
+                            ) : (
+                                <Link href="/login" className="p-2 rounded-full hover:bg-white/10 text-slate-300 transition-colors">
+                                    <User className="w-6 h-6" />
+                                </Link>
+                            )}
 
                             {/* Mobile Drawer Trigger */}
                             <button onClick={()=> setMobileMenuOpen(!mobileMenuOpen)}
