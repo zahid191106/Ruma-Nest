@@ -44,7 +44,7 @@ export default function UploadCarLiftForm() {
     setError('')
 
     try {
-      const res = await fetch('/api/upload-car-lift', {
+      const res = await fetch('/api/carlift', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...fields, routeBreakdown: stops, comfortPolicies: selectedPolicies }),

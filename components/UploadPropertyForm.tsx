@@ -39,7 +39,11 @@ export default function UploadPropertyForm() {
     Array.from(images).forEach(file => formData.append('images', file))
 
     try {
-      const res = await fetch('/api/upload-property', { method: 'POST', body: formData })
+      // const res = await fetch('/api/upload-property', { method: 'POST', body: formData })
+      const res = await fetch('/api/property', { 
+        method: 'POST', 
+        body: formData // or JSON.stringify(body) depending on your setup
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
 
