@@ -1,72 +1,100 @@
-// app/profile/page.tsx
-import React from 'react';
-import { client } from '@/sanity/lib/client'; 
-import ProfileDashboard from './ProfileDashboard';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
-import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../api/auth/[...nextauth]/route'
+import { redirect } from 'next/navigation'
+import { writeClient } from '@/sanity/lib/sanity.write'
+import RumaNestDashboardView from './RumaNestDashboardView'
 
-export const revalidate = 0; 
+interface CleanListingSummary {
+  _id: string
+  title: string
+  location: string
+  monthlyRent?: number
+  propertyType?: string
+  image?: string
+  views?: number
+  inquiries?: number
+  isActive?: boolean
+}
 
-async function getProfileData(userEmail: string) {
-  const query = `*[_type == "user" && email == $userEmail][0]{
-    name,
-    email,
-    whatsappNumber,
-    role,
-    isActive,
-    "avatarUrl": avatar.asset->url,
-    "myProperties": *[_type == "property" && author._ref == ^._id]{
-      _id,
-      title,
-      location,
-      monthlyRent,
-      propertyType,
-      isVerified,
-      status,
-      "imageUrl": images[0].asset->url
-    },
-    "myCarLifts": *[_type == "carLift" && driverProfile._ref == ^._id]{
-      _id,
-      pickupLocation,
-      dropoffLocation,
-      shiftType,
-      startTime,
-      monthlyFee,
-      seatsLeft,
-      isActive,
-      driver
-    },
-    "myFavorites": favorites[]->{
-      _id,
-      title,
-      location,
-      monthlyRent,
-      propertyType,
-      status,
-      "imageUrl": images[0].asset->url
-    }
-  }`;
+interface CleanCarLiftSummary {
+  _id: string
+  fromLocation: string
+  toLocation: string
+  timing?: string
+  price?: number
+  seatsAvailable?: number
+  isActive?: boolean
+}
 
-  return await client.fetch(query, { userEmail });
+interface UserProfileData {
+  name: string
+  email: string
+  whatsappNumber: string
+  role: string
+  avatar?: string
+  myProperties: CleanListingSummary[]
+  myCarLifts: CleanCarLiftSummary[]
+  myFavorites: CleanListingSummary[]
+}
+
+async function getUserProfileData(userId: string): Promise<UserProfileData | null> {
+  return await writeClient.fetch(
+    `*[_type == "user" && _id == $userId][0] {
+      name,
+      email,
+      whatsappNumber,
+      role,
+      "avatar": avatar.asset->url,
+      "myProperties": *[_type == "property" && (contactDetails.whatsappPhone == ^.whatsappNumber || author._ref == ^._id)] {
+        _id,
+        title,
+        location,
+        monthlyRent,
+        propertyType,
+        "image": mainImage.asset->url,
+        views,
+        inquiries,
+        "isActive": status == "active"
+      },
+      "myCarLifts": *[_type == "carLift" && driverProfile._ref == ^._id] {
+        _id,
+        "fromLocation": pickupLocation,
+        "toLocation": dropoffLocation,
+        "timing": startTime,
+        "price": monthlyFee,
+        "seatsAvailable": seatsLeft,
+        isActive
+      },
+      "myFavorites": favorites[]-> {
+        _id,
+        title,
+        location,
+        monthlyRent,
+        propertyType,
+        "image": mainImage.asset->url
+      }
+    }`,
+    { userId }
+  )
 }
 
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions)
+  const userId = (session?.user as any)?.id
 
-  if (!session || !session.user?.email) {
-    redirect('/login');
+  if (!session || !userId) {
+    redirect('/login')
   }
 
-  const profileData = await getProfileData(session.user.email);
+  const profile = await getUserProfileData(userId)
 
-  if (!profileData) {
+  if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-xs font-semibold text-slate-400">
-        Account found in Auth session, but no matching User Document exists in your Sanity dataset.
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-slate-500 font-semibold">Profile sync missing in database.</p>
       </div>
-    );
+    )
   }
 
-  return <ProfileDashboard profileData={profileData} />;
+  return <RumaNestDashboardView profileData={profile} />
 }
