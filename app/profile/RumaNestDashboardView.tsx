@@ -60,7 +60,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // States
+  // Component State Matrices
   const [properties, setProperties] = useState(profileData.myProperties || []);
   const [carLifts, setCarLifts] = useState(profileData.myCarLifts || []);
   const [favorites] = useState(profileData.myFavorites || []);
@@ -75,7 +75,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
-  // Editing States
+  // Update State Management Hooks
   const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     title: '',
@@ -95,35 +95,37 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
 
   const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=ff0055&color=fff`;
 
+  // 🔄 Consolidated Property Update Handler
   const handleEditPropertySubmit = async (e: React.FormEvent, propertyId: string) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/edit-property', {
-        method: 'POST',
+      const response = await fetch(`/api/property/${propertyId}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ propertyId, ...editForm })
+        body: JSON.stringify(editForm)
       });
       if (!response.ok) throw new Error();
       setProperties(prev => prev.map(p => p._id === propertyId ? { ...p, ...editForm, monthlyRent: Number(editForm.monthlyRent), isActive: false } : p));
       setEditingPropertyId(null);
-      alert('Listing updated safely! Pending review.');
+      alert('Listing updated safely! Sent for approval review.');
     } catch {
-      alert('Error updating listing.');
+      alert('Error saving property changes.');
     }
   };
 
+  // 🔄 Consolidated Car Lift Update Handler
   const handleEditCarLiftSubmit = async (e: React.FormEvent, liftId: string) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/edit-carlift', {
-        method: 'POST',
+      const response = await fetch(`/api/carlift/${liftId}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ liftId, ...editCarLiftForm })
+        body: JSON.stringify(editCarLiftForm)
       });
       if (!response.ok) throw new Error();
       setCarLifts(prev => prev.map(c => c._id === liftId ? { ...c, ...editCarLiftForm, price: Number(editCarLiftForm.price), isActive: false } : c));
       setEditingCarLiftId(null);
-      alert('Car Lift route updated safely! Pending review.');
+      alert('Route parameters updated safely! Sent for approval review.');
     } catch {
       alert('Error updating route information.');
     }
@@ -132,7 +134,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
   return (
     <div className="min-h-screen bg-slate-50/50 text-slate-800 font-sans flex flex-col antialiased">
       
-      {/* Premium Top Navigation Frame */}
+      {/* Top Header Navigation bar */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 lg:px-10 py-3.5 flex items-center justify-between shadow-xs">
         <div className="flex items-center space-x-4">
           <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-xl transition">
@@ -158,7 +160,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
       </header>
 
       <div className="flex-1 flex relative">
-        {/* Desktop Sidebar */}
+        {/* Desktop Sidebar Panel Drawer Layout */}
         <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-100 shrink-0 p-5 justify-between">
           <div className="space-y-6">
             <div className="p-4 bg-slate-900 rounded-2xl text-white shadow-xs">
@@ -202,7 +204,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
           </div>
         </aside>
 
-        {/* Mobile Navigation Sidebar Drawer Overlay */}
+        {/* Mobile Navigation Drawers Overlay */}
         {mobileMenuOpen && (
           <div className="fixed inset-0 bg-slate-900/40 z-50 flex lg:hidden backdrop-blur-xs animate-in fade-in duration-200">
             <div className="w-72 bg-white h-full p-5 flex flex-col justify-between shadow-2xl animate-in slide-in-from-left duration-200">
@@ -233,7 +235,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
           </div>
         )}
 
-        {/* Dynamic Inner Workspace Panel Frame View */}
+        {/* Dynamic View Panel Grid Matrix Screen Layout */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 pb-24 lg:pb-10 max-w-7xl mx-auto w-full">
 
           {/* TAB 1: OVERVIEW DASHBOARD */}
@@ -249,7 +251,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
                 </div>
               </div>
 
-              {/* Statistical KPI Indicator Layout Summary Matrix */}
+              {/* KPI Cards Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   { label: 'Total Properties', count: properties.length, icon: Home, bg: 'bg-pink-50 text-[#ff0055]' },
@@ -272,7 +274,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
             </div>
           )}
 
-          {/* TAB 2: PROPERTIES MANAGEMENT TAB PANEL */}
+          {/* TAB 2: PROPERTIES MANAGEMENT */}
           {activeTab === 'properties' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center border-b border-slate-100 pb-4">
@@ -323,7 +325,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
             </div>
           )}
 
-          {/* TAB 3: CAR LIFTS ARRANGEMENTS PANEL */}
+          {/* TAB 3: CAR LIFTS ARRANGEMENTS */}
           {activeTab === 'carlifts' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center border-b border-slate-100 pb-4">
@@ -437,7 +439,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
                 }
 
                 try {
-                  const res = await fetch('/api/update-profile', { method: 'POST', body: submissionPayload });
+                  const res = await fetch('/api/user', { method: 'PATCH', body: submissionPayload }); // Updated endpoint target folder
                   if (!res.ok) throw new Error();
                   setSaveMessage('✅ Profiles saved! Status moved to Pending Verification.');
                   setTimeout(() => window.location.reload(), 1500);
@@ -493,7 +495,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
         </main>
       </div>
 
-      {/* Modern Fixed Responsive Bottom Bar Shell for Mobile Viewports */}
+      {/* Mobile Sticky Footer Layout Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 px-2 py-2 flex items-center justify-around z-40 shadow-xl">
         {[
           { id: 'dashboard', label: 'Overview', icon: Grid },
@@ -514,7 +516,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
       </div>
 
       {/* ================================================================= */}
-      {/* INLINE MODAL OVERLAYS (ADDED TO FIX EDIT TRIGGERS)               */}
+      {/* INLINE MODAL OVERLAYS (UPDATED URL ENDPOINT ACTIONS)              */}
       {/* ================================================================= */}
       
       {/* Property Edit Modal */}
@@ -524,7 +526,7 @@ export default function RumaNestDashboardView({ profileData }: { profileData: Us
             <button onClick={() => setEditingPropertyId(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:bg-slate-50 rounded-xl"><X className="w-4 h-4" /></button>
             <div>
               <h3 className="text-sm font-black text-slate-900">Modify Property Listing</h3>
-              <p className="text-slate-400 text-[11px]">Updating pricing shifts the listing status to pending review.</p>
+              <p className="text-slate-400 text-[11px]">Updating parameters shifts the listing status to pending review.</p>
             </div>
             <form onSubmit={(e) => handleEditPropertySubmit(e, editingPropertyId)} className="space-y-3">
               <div>
