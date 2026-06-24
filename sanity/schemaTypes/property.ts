@@ -63,19 +63,19 @@ export default defineType({
       type: 'number',
       validation: (Rule) => Rule.required().min(0),
     }),
-    defineField({
-      name: 'isAllInclusive',
-      title: 'Is All-Inclusive?',
-      type: 'boolean',
-      description: 'Appends "(All-Inclusive)" text next to the price if checked',
-      initialValue: true,
-    }),
+    // defineField({
+    //   name: 'isAllInclusive',
+    //   title: 'Is All-Inclusive?',
+    //   type: 'boolean',
+    //   description: 'Appends "(All-Inclusive)" text next to the price if checked',
+    //   initialValue: true,
+    // }),
     defineField({
       name: 'overview',
       title: 'Overview Details / Description',
       type: 'text',
       rows: 4,
-      validation: (Rule) => Rule.required().min(20),
+      validation: (Rule) => Rule.required().min(10),
     }),
     // Overview Specifications
     defineField({

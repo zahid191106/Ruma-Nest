@@ -1,5 +1,7 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { client } from '../sanity/lib/client';
+import { urlFor } from '../sanity/lib/image';
 import { 
   Home, 
   Columns, 
@@ -54,7 +56,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(6000);
+  const [maxPrice, setMaxPrice] = useState<number>(60000);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -88,188 +90,88 @@ export default function App() {
     'AC Included'
   ];
 
-  // Raw Mock Data matching website flow
-  const propertiesData: Property[] = [
-    {
-      id: 'prop-1',
-      title: 'Premium Master Room with Attached Bath',
-      category: 'Room',
-      location: 'Al Wahda',
-      address: 'Hazza Bin Zayed Street, Al Wahda, Abu Dhabi',
-      price: 1800,
-      imageUrl: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['Fully Furnished', 'WiFi Included', 'Near Bus Stop', 'AC Included', 'Neat & Clean'],
-      isVerified: true,
-      occupancy: 'Solo / Couple',
-      nationalityPrefer: 'Any Nationality',
-      whatsappNumber: '971501234567',
-      postedDate: '2026-06-14',
-      description: 'Super clean master room located right next to Al Wahda Mall. High-speed internet is fully complimentary. Ideal for professional individuals or couples looking for clean, peaceful living.'
-    },
-    {
-      id: 'prop-2',
-      title: 'Affordable Closed Partition Room with Window',
-      category: 'Partition',
-      location: 'Mussafah',
-      address: 'Shabiya 12, Mussafah, Abu Dhabi',
-      price: 800,
-      imageUrl: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['WiFi Included', 'Family Allowed', 'Neat & Clean', 'AC Included'],
-      isVerified: true,
-      occupancy: 'Solo Male / Female',
-      nationalityPrefer: 'Asian / Indian',
-      whatsappNumber: '971509876543',
-      postedDate: '2026-06-15',
-      description: 'Spacious gypsum partition room with individual key lock door and a proper window. Rent includes water, electricity, high-speed WiFi, and daily common area cleaning.'
-    },
-    {
-      id: 'prop-3',
-      title: 'Chic Studio Apartment with Sea View',
-      category: 'Studio',
-      location: 'Al Reem Island',
-      address: 'Marina Heights, Al Reem Island, Abu Dhabi',
-      price: 3200,
-      imageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['Separate Kitchen', 'Gym & Pool', 'Fully Furnished', 'Neat & Clean', 'AC Included'],
-      isVerified: true,
-      occupancy: 'Solo / Couple',
-      nationalityPrefer: 'Any Nationality',
-      whatsappNumber: '971504445555',
-      postedDate: '2026-06-12',
-      description: 'A beautiful luxury studio apartment located in Al Reem Island. Stunning direct view of the marina, central air conditioning, fully fitted kitchen appliances, and complete access to top-tier health club facilities.'
-    },
-    {
-      id: 'prop-4',
-      title: 'Luxury Bed Space in Shared Room',
-      category: 'Bed Space',
-      location: 'Tourist Club Area',
-      address: 'Al Zahiyah Street, Tourist Club Area, Abu Dhabi',
-      price: 600,
-      imageUrl: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['WiFi Included', 'Neat & Clean', 'Near Bus Stop'],
-      isVerified: true,
-      occupancy: 'Male Shared',
-      nationalityPrefer: 'Any Nationality',
-      whatsappNumber: '971501112222',
-      postedDate: '2026-06-13',
-      description: 'Extremely clean and non-crowded executive bed space. Only 3 people in a huge master room. High-speed internet, premium medical mattress, and fully automatic washing machine provided.'
-    },
-    {
-      id: 'prop-5',
-      title: 'Spacious 2BHK Premium Family Apartment',
-      category: 'Apartment',
-      location: 'Mohammed Bin Zayed City',
-      address: 'Zone 5, MBZ City, Abu Dhabi',
-      price: 4500,
-      imageUrl: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['Separate Kitchen', 'Gym & Pool', 'Family Allowed', 'AC Included'],
-      isVerified: true,
-      occupancy: 'Family Only',
-      nationalityPrefer: 'Arab / Western',
-      whatsappNumber: '971503337777',
-      postedDate: '2026-06-10',
-      description: 'Ground floor spacious 2BHK with separate entrance, massive living hall, and private parking yard. Conveniently located near Mazyad Mall, schools, and essential facilities.'
-    },
-    {
-      id: 'prop-6',
-      title: 'Cozy Cozy Single Partition with High Ceiling',
-      category: 'Partition',
-      location: 'Hamdan Street',
-      address: 'Electra Back Street, Hamdan, Abu Dhabi',
-      price: 950,
-      imageUrl: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['WiFi Included', 'Fully Furnished', 'Neat & Clean'],
-      isVerified: false,
-      occupancy: 'Solo Female',
-      nationalityPrefer: 'Filipino / Asian',
-      whatsappNumber: '971505556666',
-      postedDate: '2026-06-14',
-      description: 'Fully furnished compact partition room with comfortable bed, cupboard, and side-table. Shared kitchen facilities available. Home features high-speed internet and quiet, peaceful flatmates.'
-    },
-    {
-      id: 'prop-7',
-      title: 'Bright Studio Apartment near Zayed University',
-      category: 'Studio',
-      location: 'Khalifa City',
-      address: 'Street 15, Sector 12, Khalifa City A, Abu Dhabi',
-      price: 2100,
-      imageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['Separate Kitchen', 'AC Included', 'Neat & Clean', 'WiFi Included'],
-      isVerified: true,
-      occupancy: 'Solo / Couple',
-      nationalityPrefer: 'Any Nationality',
-      whatsappNumber: '971508889999',
-      postedDate: '2026-06-11',
-      description: 'Beautiful, newly constructed studio on the first floor. Rent includes top quality split AC maintenance, water/electricity bills, and private paved street parking.'
-    },
-    {
-      id: 'prop-8',
-      title: 'Spacious Shared Room Bed Space for Females',
-      category: 'Bed Space',
-      location: 'Al Muroor',
-      address: 'Muroor Road Near Bus Station, Abu Dhabi',
-      price: 550,
-      imageUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['WiFi Included', 'Near Bus Stop', 'Neat & Clean'],
-      isVerified: true,
-      occupancy: 'Female Shared',
-      nationalityPrefer: 'Any Nationality',
-      whatsappNumber: '971502223333',
-      postedDate: '2026-06-09',
-      description: 'Quiet, peaceful executive female bed space in a spacious room. Rent is completely inclusive of unlimited high-speed WiFi, cooking facilities, gas, and electricity bills.'
-    },
-    {
-      id: 'prop-9',
-      title: 'Modern 1BHK Apartment in High Floor',
-      category: 'Apartment',
-      location: 'Yas Island',
-      address: 'Water Edge Building 3, Yas Island, Abu Dhabi',
-      price: 5200,
-      imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80',
-      images: [
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80'
-      ],
-      amenities: ['Gym & Pool', 'Separate Kitchen', 'AC Included', 'Neat & Clean'],
-      isVerified: true,
-      occupancy: 'Solo / Couple',
-      nationalityPrefer: 'Any Nationality',
-      whatsappNumber: '971507778888',
-      postedDate: '2026-06-15',
-      description: 'Stunning 1BHK unit at Water Edge Yas Island. Enjoys built-in wardrobes, state-of-the-art gym access, infinity pool, secure car parking, and beautiful canal views from the private balcony.'
-    }
-  ];
+  // Live data from Sanity (fetched client-side)
+  const [propertiesData, setPropertiesData] = useState<Property[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const mapDocToProperty = (doc: any): Property => {
+      // Safely parse out location parts
+      const locParts = (doc.location || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+      const shortLocation = locParts.length >= 2 ? locParts[1] : locParts[0] || '';
+
+      // Fallback asset array logic
+      const images: string[] = doc.images && doc.images.length > 0
+        ? doc.images.map((img: any) => urlFor(img).width(1200).url())
+        : [doc.mainImage ? urlFor(doc.mainImage).width(1200).url() : '/images/action-image-1.avif'];
+
+      const primaryImage = images[0] || '/images/action-image-1.avif';
+
+      // Updated mapping to support all variations cleanly
+      const typeMap: Record<string, 'Room' | 'Partition' | 'Studio' | 'Bed Space' | 'Apartment'> = {
+        room: 'Room',
+        partition: 'Partition',
+        studio: 'Studio',
+        bed_space: 'Bed Space',
+        apartment: 'Apartment'
+      };
+
+      const rawType = doc.propertyType || '';
+      const category = typeMap[rawType] || 'Room';
+
+      return {
+        id: doc._id,
+        title: doc.title || 'Cozy Nest Space',
+        category,
+        location: shortLocation || 'Unknown Area',
+        address: doc.location || 'Address Details Unavailable',
+        price: doc.monthlyRent || 0,
+        imageUrl: primaryImage,
+        images,
+        amenities: doc.includedAmenities || [],
+        isVerified: !!doc.isVerified,
+        occupancy: doc.idealOccupancy || 'Any',
+        nationalityPrefer: doc.preference || 'Any Nationality',
+        whatsappNumber: doc.contactDetails?.whatsappPhone || '',
+        postedDate: doc._createdAt || new Date().toISOString(),
+        description: doc.overview || '',
+      };
+    };
+
+    // Pulling strictly active status values
+    client
+      .fetch(
+        `*[_type == "property" && status == "active"]{
+          _id, 
+          title, 
+          mainImage,
+          images, 
+          isVerified, 
+          propertyType, 
+          location, 
+          monthlyRent, 
+          overview, 
+          idealOccupancy, 
+          preference, 
+          includedAmenities, 
+          contactDetails, 
+          _createdAt
+        }`
+      )
+      .then((docs: any[]) => {
+        if (!mounted) return;
+        const mapped = docs.map(mapDocToProperty);
+        setPropertiesData(mapped);
+      })
+      .catch((err) => {
+        console.error('Sanity data pipelines failure error:', err);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Handle Amenity selections
   const toggleAmenity = (amenity: string) => {
@@ -312,20 +214,20 @@ export default function App() {
 
     // Location Filter
     if (selectedLocation !== 'All') {
-      result = result.filter(item => item.location === selectedLocation);
+      result = result.filter(item => item.location.toLowerCase() === selectedLocation.toLowerCase());
     }
 
     // Price Bounds
     result = result.filter(item => item.price >= minPrice && item.price <= maxPrice);
 
-    // Selected Amenities
+    // Selected Amenities Matrix Check
     if (selectedAmenities.length > 0) {
       result = result.filter(item => 
         selectedAmenities.every(amenity => item.amenities.includes(amenity))
       );
     }
 
-    // Sorting
+    // Sorting Modes Matrix
     if (sortBy === 'price-asc') {
       result.sort((a, b) => a.price - b.price);
     } else if (sortBy === 'price-desc') {
@@ -335,7 +237,7 @@ export default function App() {
     }
 
     return result;
-  }, [searchQuery, selectedCategory, selectedLocation, minPrice, maxPrice, selectedAmenities, sortBy]);
+  }, [propertiesData, searchQuery, selectedCategory, selectedLocation, minPrice, maxPrice, selectedAmenities, sortBy]);
 
   // Open Property Modal Helper
   const openModal = (property: Property) => {
@@ -634,11 +536,15 @@ export default function App() {
                                             </span>
 
                                             {/* Top Overlay Badge for Verified items */}
-                                            {prop.isVerified && (
+                                            {prop.isVerified === true ? (
                                                 <span className="absolute top-3 left-3 bg-emerald-500 text-white text-sm font-black tracking-wider px-2.5 py-1 rounded-md shadow-sm">
                                                     VERIFIED
                                                 </span>
-                                            )}
+                                            ) : 
+                                                <span className="absolute top-3 left-3 bg-slate-100 text-slate-700 border-slate-200 text-sm font-black tracking-wider px-2.5 py-1 rounded-md shadow-sm">
+                                                    NOT VERIFIED
+                                                </span>
+                                            }
                                         </div>
 
                                         {/* Meta Info & Features */}
@@ -862,11 +768,15 @@ export default function App() {
                                     {selectedProperty.category}
                                 </span>
 
-                                {selectedProperty.isVerified && (
-                                <span className="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-lg">
-                                    VERIFIED NEST
-                                </span>
-                                )}
+                                {selectedProperty.isVerified == true ? (
+                                    <span className="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-lg">
+                                        VERIFIED NEST
+                                    </span>
+                                ) : 
+                                    <span className="absolute top-3 left-3 bg-slate-100 text-slate-700 border-slate-200 text-sm font-black tracking-wider px-2.5 py-1 rounded-md shadow-sm">
+                                        NOT VERIFIED
+                                    </span>
+                                }
                             </div>
 
                             {/* Thumbnails list navigation if available */}

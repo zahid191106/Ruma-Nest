@@ -266,7 +266,7 @@ export default function App() {
                         {/* Right Column: Title & Input Selector Grid */}
                         <div className="flex-1 w-full space-y-5">
                             <div className="text-left">
-                            <h3 className="text-3xl font-extrabold text-[#ff0066] tracking-tight">I NEED A ROOM</h3>
+                            <h3 className="text-3xl font-extrabold text-[#ff0066] tracking-tight">Tenant Post</h3>
                             <p className="text-base font-semibold text-slate-500 mt-1">Tell us what you need, we will match for you!</p>
                             </div>
 
