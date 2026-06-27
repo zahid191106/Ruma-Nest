@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return(
-    <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden">
+    <div className="xl:min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden">
       <Navbar />
       <HomePage />
       <ActionCard />

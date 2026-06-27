@@ -103,7 +103,7 @@ export default function App() {
                             {[
                                 { name: 'Home', href: '/' },
                                 { name: 'Properties', href: '/properties' },
-                                { name: 'Roommate Finder', href: '/list-property' },
+                                { name: 'Roommate Finder', href: '/roommate' },
                                 { name: 'Car Lift', href: '/car-lifts' }
                             ].map((item) => (
                                 <Link
@@ -169,11 +169,9 @@ export default function App() {
                         <div className="flex flex-col p-4 gap-1">
                             {[
                                 { name: 'Home', href: '/' },
-                                { name: 'Find Property', href: '/properties' },
-                                { name: 'Need Property', href: '/need-property' },
-                                { name: 'List Property', href: '/list-property' },
+                                { name: 'Properties', href: '/properties' },
                                 { name: 'Car Lift', href: '/car-lifts' },
-                                { name: 'Roommate Finder', href: '/roommate-finder' }
+                                { name: 'Roommate Finder', href: '/roommate' }
                             ].map((item) => (
                                 <Link
                                 key={item.name}

@@ -343,7 +343,7 @@ export default function CarLiftDirectoryPage() {
               No matching live traveling demands found across parameters.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredRequests.map((req) => {
                 const isReg = !!req.registeredUser;
                 const name = isReg ? req.registeredUser?.name : req.guestUserDetails?.name;

@@ -13,8 +13,8 @@ export default function Page() {
     <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden"
       style={{
         backgroundImage: `
-          radial-gradient(circle 1450px at 20% 20%, #f984e5, transparent),
-          radial-gradient(circle 1450px at 70% 70%, #f984e5, transparent)
+          radial-gradient(circle 1450px at 5% 5%, #f984e5, transparent),
+          radial-gradient(circle 1450px at 90% 90%, #f984e5, transparent)
         `,
        
       }}
