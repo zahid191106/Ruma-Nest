@@ -211,7 +211,7 @@ export default function RoommatesPage() {
   };
 
   return (
-    <div className="min-gradient-bg max-w-2xl mx-auto py-10 px-4 font-sans text-left">
+    <div className="min-gradient-bg max-w-2xl mx-auto py-2 px-4 font-sans text-left">
       {/* Toast Alert Component */}
       {successMessage && (
         <div className="fixed top-5 right-5 z-50 bg-emerald-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-500 max-w-md animate-bounce">
@@ -229,14 +229,14 @@ export default function RoommatesPage() {
           <div className="p-2 bg-pink-50 text-[#ff0066] rounded-xl"><Sparkles className="w-5 h-5" /></div>
           <div>
             <h1 className="text-xl font-extrabold text-slate-800">Post Roommate Requirement</h1>
-            <p className="text-xs text-slate-400">Find matching flatmates and shared accommodations</p>
+            <p className="text-sm text-slate-400">Find matching flatmates and shared accommodations</p>
           </div>
         </div>
 
         <form onSubmit={handleTenantSubmit} className="space-y-4 pt-6">
           {/* Title input */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Listing Title</label>
+            <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Listing Title</label>
             <input 
               type="text" required minLength={10} maxLength={80}
               placeholder="e.g., Luxury Master Bedroom Bedspace near Metro"
@@ -248,7 +248,7 @@ export default function RoommatesPage() {
 
           {/* Location Picker with geoapify handling[cite: 2] */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Location / Area</label>
+            <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Location / Area</label>
             <div className="relative">
               <div className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white focus-within:ring-2 focus-within:ring-pink-500/20 focus-within:border-[#ff0066] transition-all flex items-center gap-2.5">
                 <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
@@ -283,7 +283,7 @@ export default function RoommatesPage() {
           {/* Gender & Spaces Need Selectors[cite: 2] */}
           <div className="grid grid-cols-2 gap-4">
             <div className="relative">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Gender Preference</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Gender Preference</label>
               <button
                 type="button" onClick={() => toggleDropdown('gender')}
                 className="w-full h-11 px-3 border border-slate-200 rounded-xl text-left text-sm font-semibold text-slate-800 bg-white flex items-center justify-between"
@@ -307,7 +307,7 @@ export default function RoommatesPage() {
             </div>
 
             <div className="relative">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Spaces Needed</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Spaces Needed</label>
               <button
                 type="button" onClick={() => toggleDropdown('freeSpace')}
                 className="w-full h-11 px-3 border border-slate-200 rounded-xl text-left text-sm font-semibold text-slate-800 bg-white flex items-center justify-between"
@@ -334,7 +334,7 @@ export default function RoommatesPage() {
           {/* Pricing Config[cite: 2] */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Max Budget (AED)</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Max Budget (AED)</label>
               <div className="relative flex items-center">
                 <DollarSign className="w-4 h-4 text-slate-400 absolute left-3" />
                 <input 
@@ -346,7 +346,7 @@ export default function RoommatesPage() {
             </div>
 
             <div className="relative">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Billing Cycle</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Billing Cycle</label>
               <button
                 type="button" onClick={() => toggleDropdown('billingCycle')}
                 className="w-full h-11 px-3 border border-slate-200 rounded-xl text-left text-sm font-semibold text-slate-800 bg-white flex items-center justify-between"
@@ -373,7 +373,7 @@ export default function RoommatesPage() {
           {/* Timeline & WhatsApp Connection Details[cite: 2] */}
           <div className="grid grid-cols-2 gap-4">
             <div className="relative">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Move In</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Move In</label>
               <button
                 type="button" onClick={() => toggleDropdown('moveIn')}
                 className="w-full h-11 px-3 border border-slate-200 rounded-xl text-left text-sm font-semibold text-slate-800 bg-white flex items-center justify-between"
@@ -397,7 +397,7 @@ export default function RoommatesPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">WhatsApp Number</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">WhatsApp Number</label>
               <div className="relative flex items-center">
                 <Phone className="w-4 h-4 text-slate-400 absolute left-3" />
                 <input 
@@ -411,8 +411,8 @@ export default function RoommatesPage() {
 
           {/* Amenities Field Layout (Enter Tagging Action)[cite: 2] */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Amenities</label>
-            <p className="text-xs text-slate-400 mb-1.5 font-medium">Type an amenity (e.g. Balcony, Wifi) and press Enter</p>
+            <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Amenities</label>
+            <p className="text-xs md:text-sm text-slate-400 mb-1.5 font-medium">Type an amenity (e.g. Balcony, Wifi) and press Enter</p>
             <div className="relative flex items-center">
               <input
                 type="text" placeholder="Type amenity here..." value={amenityInput}
@@ -445,7 +445,7 @@ export default function RoommatesPage() {
 
           {/* Image Upload Input Pipeline[cite: 2] */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Room / Property Images</label>
+            <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Room / Property Images</label>
             <div className="mt-1 border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-pink-400 transition-colors relative bg-slate-50/50">
               <input 
                 type="file" multiple required accept="image/*" onChange={handleFileChange}
@@ -453,12 +453,12 @@ export default function RoommatesPage() {
               />
               <div className="flex flex-col items-center justify-center gap-1">
                 <ImageIcon className="w-8 h-8 text-slate-400" />
-                <span className="text-xs font-bold text-slate-600">Click to upload room images</span>
-                <span className="text-[10px] text-slate-400">Upload at least 1 photo</span>
+                <span className="text-xs md:text-sm font-bold text-slate-600">Click to upload room images</span>
+                <span className="text-xs md:text-sm text-slate-400">Upload at least 1 photo</span>
               </div>
             </div>
             {selectedImages && selectedImages.length > 0 && (
-              <div className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
+              <div className="text-xs md:text-sm text-emerald-600 font-bold mt-2 flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" /> Selected {selectedImages.length} image(s) ready to upload
               </div>
             )}

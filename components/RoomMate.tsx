@@ -124,19 +124,32 @@ export default function RoommatesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
+    <div className="min-h-screen bg-slate-50 text-slate-800 rounded-3xl">
       
       {/* =========================================================
           HERO BANNER SECTION
          ========================================================= */}
-      <section className="relative h-[440px] md:h-[500px] flex items-center justify-center bg-[#0a192f] overflow-hidden text-center px-4">
-        <div className="absolute inset-0 z-0 opacity-40 mix-blend-overlay">
-          <div className="absolute top-12 left-1/4 w-96 h-96 bg-pink-500 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-600 rounded-full blur-3xl" />
+      <section className="relative h-110 md:h-125 flex items-center justify-center bg-[#0a192f] overflow-hidden text-center px-4 rounded-t-3xl">
+        {/* Background Layer Container */}
+        <div className="absolute inset-0 z-0">
+          {/* 1. The Background Image */}
+          <img 
+            src="/images/header-image.webp" // Replace with your image URL
+            alt="Hero Background"
+            className="w-full h-full object-cover opacity-20" // Adjust opacity here to mix with the dark background
+          />
+          
+          {/* 2. Your Colored Blur Blends */}
+          <div className="absolute inset-0 opacity-40 mix-blend-overlay">
+            <div className="absolute top-12 left-1/4 w-96 h-96 bg-pink-500 rounded-full blur-3xl" />
+            <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-600 rounded-full blur-3xl" />
+          </div>
         </div>
         
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-50/10 z-0" />
+        {/* Gradient Overlay for extra text contrast */}
+        <div className="absolute inset-0 bg-linear-to-b from-transparent to-slate-50/10 z-0" />
 
+        {/* Content Layer */}
         <div className="relative z-10 max-w-3xl mx-auto space-y-6">
           <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-pink-500/10 text-pink-400 text-xs font-bold uppercase tracking-wider border border-pink-500/20">
             <Sparkles className="w-3.5 h-3.5" /> Find Shared Rooms & Flatmates
@@ -191,15 +204,15 @@ export default function RoommatesPage() {
           <aside className="hidden lg:block bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6 text-left">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="text-base font-extrabold text-slate-800 flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-[#ff0066]" /> Filters
+                <SlidersHorizontal className="w-5 h-5 text-[#ff0066]" /> Filters
               </h3>
-              <button onClick={clearAllFilters} className="text-xs font-bold text-slate-400 hover:text-pink-600 transition-colors cursor-pointer">
+              <button onClick={clearAllFilters} className="text-xs md:text-sm font-bold text-slate-400 hover:text-pink-600 transition-colors cursor-pointer">
                 Clear All
               </button>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Gender</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider">Gender</label>
               <select 
                 value={selectedGender} 
                 onChange={(e) => setSelectedGender(e.target.value)}
@@ -213,7 +226,7 @@ export default function RoommatesPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Spaces Needed</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider">Spaces Needed</label>
               <select 
                 value={selectedSpace} 
                 onChange={(e) => setSelectedSpace(e.target.value)}
@@ -227,7 +240,7 @@ export default function RoommatesPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Max Budget (AED)</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider">Max Budget (AED)</label>
               <div className="relative flex items-center">
                 <DollarSign className="w-4 h-4 text-slate-400 absolute left-3" />
                 <input 
@@ -241,7 +254,7 @@ export default function RoommatesPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Billing Cycle</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider">Billing Cycle</label>
               <select 
                 value={billingCycle} 
                 onChange={(e) => setBillingCycle(e.target.value)}
@@ -254,7 +267,7 @@ export default function RoommatesPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Move In Timeline</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider">Move In Timeline</label>
               <select 
                 value={selectedMoveIn} 
                 onChange={(e) => setSelectedMoveIn(e.target.value)}
@@ -285,7 +298,7 @@ export default function RoommatesPage() {
                 <p className="text-sm text-slate-500 font-medium leading-relaxed">
                   We couldn't find matches for your active filters. Try broadening your query criteria or post a brand new card.
                 </p>
-                <button onClick={clearAllFilters} className="text-xs font-bold text-[#ff0066] hover:underline cursor-pointer">
+                <button onClick={clearAllFilters} className="text-xs md:text-sm font-bold text-[#ff0066] hover:underline cursor-pointer">
                   Reset Filters
                 </button>
               </div>
@@ -294,17 +307,17 @@ export default function RoommatesPage() {
                 {filteredListings.map((post) => (
                   <div 
                     key={post._id} 
-                    className="bg-white rounded-[2rem] border border-slate-200/60 overflow-hidden hover:shadow-xl hover:border-slate-300/80 transition-all flex flex-col justify-between text-left group"
+                    className="bg-white rounded-4xl border border-slate-300/80 overflow-hidden shadow-xl hover:border-pink-400/80 transition-all flex flex-col justify-between text-left group"
                   >
                     <div className="p-6 space-y-4">
                       <div className="flex justify-between items-start gap-2">
-                        <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider inline-flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-pink-500" /> {post.location.split(',')[0]}
+                        <span className="text-xs md:text-sm bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider inline-flex items-center gap-1">
+                          <MapPin className="w-4 h-4 text-pink-500" /> {post.location.split(',')[0]}
                         </span>
                         
                         <div className="text-right">
-                          <p className="text-lg font-black text-slate-900 leading-none">AED {post.price?.amount}</p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">/{post.price?.billingCycle}</p>
+                          <p className="text-lg font-black text-pink-600 leading-none">AED {post.price?.amount}</p>
+                          <p className="text-xs text-slate-400 font-bold uppercase tracking-tight mt-0.5">/{post.price?.billingCycle}</p>
                         </div>
                       </div>
 
@@ -312,7 +325,7 @@ export default function RoommatesPage() {
                         <h4 className="text-base font-extrabold text-slate-800 group-hover:text-[#ff0066] transition-colors line-clamp-2 leading-snug">
                           {post.title}
                         </h4>
-                        <p className="text-xs text-slate-400 font-bold mt-1">
+                        <p className="text-xs md:text-sm text-slate-400 font-bold mt-1">
                           Posted by: {post.author?.name || 'Anonymous Guest'}
                         </p>
                       </div>
@@ -321,32 +334,32 @@ export default function RoommatesPage() {
 
                       <div className="grid grid-cols-3 gap-2 py-1">
                         <div className="bg-slate-50/80 p-2 rounded-xl text-center">
-                          <Users className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                          <p className="text-[10px] text-slate-400 font-bold uppercase">Gender</p>
-                          <p className="text-xs font-extrabold text-slate-700 mt-0.5 capitalize">{post.gender === 'couple' ? 'Couples' : post.gender}</p>
+                          <Users className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                          <p className="text-xs text-slate-400 font-bold uppercase">Gender</p>
+                          <p className="text-xs md:text-sm font-extrabold text-slate-700 mt-0.5 capitalize">{post.gender === 'couple' ? 'Couples' : post.gender}</p>
                         </div>
 
                         <div className="bg-slate-50/80 p-2 rounded-xl text-center">
-                          <GridIcon className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                          <p className="text-[10px] text-slate-400 font-bold uppercase">Spaces</p>
-                          <p className="text-xs font-extrabold text-slate-700 mt-0.5">{post.freeSpace} {post.freeSpace === 1 ? 'Person' : 'People'}</p>
+                          <GridIcon className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                          <p className="text-xs text-slate-400 font-bold uppercase">Spaces</p>
+                          <p className="text-xs md:text-sm font-extrabold text-slate-700 mt-0.5">{post.freeSpace} {post.freeSpace === 1 ? 'Person' : 'People'}</p>
                         </div>
 
                         <div className="bg-slate-50/80 p-2 rounded-xl text-center">
-                          <Calendar className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                          <p className="text-[10px] text-slate-400 font-bold uppercase">Move In</p>
-                          <p className="text-xs font-extrabold text-slate-700 mt-0.5 capitalize truncate">{post.moveIn.replace('_', ' ')}</p>
+                          <Calendar className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                          <p className="text-xs text-slate-400 font-bold uppercase">Move In</p>
+                          <p className="text-xs md:text-sm font-extrabold text-slate-700 mt-0.5 capitalize truncate">{post.moveIn.replace('_', ' ')}</p>
                         </div>
                       </div>
 
                       {post.amenities && post.amenities.length > 0 && (
                         <div className="flex flex-wrap gap-1 pt-1">
-                          {post.amenities.slice(0, 3).map((amenity, idx) => (
-                            <span key={idx} className="text-[10px] bg-pink-50/60 text-[#ff0066] font-extrabold px-2 py-0.5 rounded-md border border-pink-100/40">
+                          {post.amenities.slice(0, 5).map((amenity, idx) => (
+                            <span key={idx} className="text-xs md:text-sm bg-pink-50/60 text-[#ff0066] font-extrabold px-2 py-0.5 rounded-md border border-pink-100/40">
                               {amenity}
                             </span>
                           ))}
-                          {post.amenities.length > 3 && (
+                          {post.amenities.length > 5 && (
                             <span className="text-[10px] bg-slate-100 text-slate-500 font-extrabold px-2 py-0.5 rounded-md">
                               +{post.amenities.length - 3} More
                             </span>
@@ -360,7 +373,7 @@ export default function RoommatesPage() {
                         href={`https://wa.me/${post.whatsappNumber.replace(/[+\s]/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-md shadow-emerald-600/10 transition-all active:scale-98"
+                        className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs md:text-sm tracking-wider uppercase flex items-center justify-center gap-2 shadow-md shadow-emerald-600/10 transition-all active:scale-98"
                       >
                         <Phone className="w-3.5 h-3.5" /> Direct WhatsApp Chat
                       </a>
@@ -495,7 +508,7 @@ export default function RoommatesPage() {
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <div>
                 <h3 className="text-lg font-black text-slate-800">Post Room Requirement</h3>
-                <p className="text-xs text-slate-400 font-medium">Fill out the form below to look for roommates</p>
+                <p className="text-sm text-slate-400 font-medium">Fill out the form below to look for roommates</p>
               </div>
               <button 
                 onClick={() => setIsTenantModalOpen(false)}

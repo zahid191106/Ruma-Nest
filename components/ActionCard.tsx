@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, ChangeEvent, FormEvent, useEffect, useRef, KeyboardEvent } from 'react';
+import TenantForm from '@/components/TanentForm';
 import { 
   MapPin, 
   Users, 
@@ -467,318 +468,39 @@ export default function App() {
       </div>
 
       {/* =========================================================
-          POPUP MODAL 1: Tenant Form Modal (Updated to match Schema)
-         ========================================================= */}
+          HIGH-END MODAL CONTAINER (Matches ActionCard Pattern)
+          ========================================================= */}
       {isTenantModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white rounded-4xl shadow-2xl border border-slate-100 w-full max-w-lg p-6 sm:p-8 relative overflow-hidden my-auto animate-in zoom-in-95 duration-200">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-50 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          
+          {/* Backdrop click to close */}
+          <div 
+            onClick={() => setIsTenantModalOpen(false)} 
+            className="absolute inset-0 cursor-pointer" 
+          />
+          
+          {/* Form Modal Box Card */}
+          <div className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-pink-50 text-[#ff0066] rounded-xl">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-extrabold text-slate-800">Post Roommate Requirement</h4>
-                  <p className="text-xs text-slate-400">Find matching flatmates and shared accommodations</p>
-                </div>
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <div>
+                <h3 className="text-lg font-black text-slate-800">Post Room Requirement</h3>
+                <p className="text-sm text-slate-400 font-medium">Fill out the form below to look for roommates</p>
               </div>
               <button 
                 onClick={() => setIsTenantModalOpen(false)}
-                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                className="p-2 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer shadow-sm"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleTenantSubmit} className="space-y-4 pt-4 max-h-[75vh] overflow-y-auto px-1">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Listing Title</label>
-                <input 
-                  type="text" 
-                  required
-                  minLength={10}
-                  maxLength={80}
-                  placeholder="e.g., Luxury Master Bedroom Bedspace near Metro"
-                  value={tenantForm.title}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setTenantForm(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-[#ff0066]"
-                />
-              </div>
+            {/* Scrollable Form Body Container */}
+            <div className="p-6 overflow-y-auto text-left">
+              <TenantForm />
+            </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Location / Area</label>
-                <div className="relative">
-                  <div className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 focus-within:ring-2 focus-within:ring-pink-500/20 focus-within:border-[#ff0066] transition-all flex items-center gap-2.5">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                    <input
-                      type="text"
-                      placeholder="Type area (e.g., Dubai Marina, Al Barsha)..."
-                      value={tenantQuery}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setTenantQuery(e.target.value)}
-                      onFocus={() => tenantQuery.length >= 3 && setTenantIsLocationOpen(true)}
-                      className="w-full bg-transparent h-full text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
-                      required
-                    />
-                    {tenantIsLoading && <Loader2 className="w-4 h-4 text-[#ff0066] animate-spin shrink-0" />}
-                    {tenantQuery && !tenantIsLoading && (
-                      <button type="button" onClick={clearTenantInput} className="p-0.5 hover:bg-slate-200 rounded-full shrink-0 cursor-pointer">
-                        <X className="w-3.5 h-3.5 text-slate-500" />
-                      </button>
-                    )}
-                  </div>
-
-                  {tenantIsLocationOpen && tenantSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto p-1">
-                      {tenantSuggestions.map(item => (
-                        <button
-                          key={item.place_id}
-                          type="button"
-                          onClick={() => selectTenantLocation(item.formatted)}
-                          className={`w-full px-3 py-2 text-left text-sm font-medium cursor-pointer rounded-xl transition-all flex items-center justify-between ${tenantForm.location === item.formatted ? 'bg-pink-50 text-[#ff0066] font-semibold' : 'text-slate-700 hover:bg-slate-50'}`}>
-                          <span className="truncate pr-2">{item.formatted}</span>
-                          {tenantForm.location === item.formatted && <Check className="w-4 h-4 text-[#ff0066] shrink-0" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative">
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Gender Preference</label>
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown('gender')}
-                    className="w-full h-11 px-3 border border-slate-200 rounded-xl text-left text-sm font-semibold text-slate-800 bg-white flex items-center justify-between"
-                  >
-                    <span>
-                      {tenantForm.gender === 'men' ? 'Men Only' : tenantForm.gender === 'female' ? 'Females Only' : tenantForm.gender === 'couple' ? 'Couples Allowed' : 'Select'}
-                    </span>
-                    <Users className="w-4 h-4 text-slate-400" />
-                  </button>
-                  {activeDropdown === 'gender' && (
-                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                      {[
-                        { title: 'Men Only', value: 'men' },
-                        { title: 'Females Only', value: 'female' },
-                        { title: 'Couples Allowed', value: 'couple' }
-                      ].map(g => (
-                        <button
-                          key={g.value}
-                          type="button"
-                          onClick={() => { setTenantForm(prev => ({ ...prev, gender: g.value })); toggleDropdown(null); }}
-                          className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-pink-50 hover:text-[#ff0066]"
-                        >
-                          {g.title}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Spaces Needed</label>
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown('freeSpace')}
-                    className="w-full h-11 px-3 border border-slate-200 rounded-xl text-left text-sm font-semibold text-slate-800 bg-white flex items-center justify-between"
-                  >
-                    <span>{tenantForm.freeSpace} Person(s)</span>
-                    <GridIcon className="w-4 h-4 text-slate-400" />
-                  </button>
-                  {activeDropdown === 'freeSpace' && (
-                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                      {[1, 2, 3, 4].map(num => (
-                        <button
-                          key={num}
-                          type="button"
-                          onClick={() => { setTenantForm(prev => ({ ...prev, freeSpace: num })); toggleDropdown(null); }}
-                          className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-pink-50"
-                        >
-                          {num} {num === 1 ? 'Person' : 'Persons'}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Max Budget (AED)</label>
-                  <div className="relative flex items-center">
-                    <DollarSign className="w-4 h-4 text-slate-400 absolute left-3" />
-                    <input 
-                      type="number" 
-                      required
-                      min={1}
-                      placeholder="e.g., 1500"
-                      value={tenantForm.priceAmount}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setTenantForm(prev => ({ ...prev, priceAmount: e.target.value }))}
-                      className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Billing Cycle</label>
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown('billingCycle')}
-                    className="w-full h-11 px-3 border border-slate-200 rounded-xl text-left text-sm font-semibold text-slate-800 bg-white flex items-center justify-between"
-                  >
-                    <span className="capitalize">{tenantForm.billingCycle || 'Select'}</span>
-                    <ArrowUpDown className="w-4 h-4 text-slate-400" />
-                  </button>
-                  {activeDropdown === 'billingCycle' && (
-                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                      {['weekly', 'monthly'].map(cycle => (
-                        <button
-                          key={cycle}
-                          type="button"
-                          onClick={() => { setTenantForm(prev => ({ ...prev, billingCycle: cycle })); toggleDropdown(null); }}
-                          className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-pink-50 capitalize"
-                        >
-                          {cycle}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative">
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Move In</label>
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown('moveIn')}
-                    className="w-full h-11 px-3 border border-slate-200 rounded-xl text-left text-sm font-semibold text-slate-800 bg-white flex items-center justify-between"
-                  >
-                    <span>
-                      {tenantForm.moveIn ? tenantForm.moveIn.replace('_', ' ') : 'When?'}
-                    </span>
-                    <Calendar className="w-4 h-4 text-slate-400" />
-                  </button>
-                  {activeDropdown === 'moveIn' && (
-                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                      {[
-                        { title: 'Immediately', value: 'immediately' },
-                        { title: 'Within 1 Week', value: '1_week' },
-                        { title: 'Within 2 Weeks', value: '2_weeks' },
-                        { title: 'Next Month', value: 'next_month' }
-                      ].map(time => (
-                        <button
-                          key={time.value}
-                          type="button"
-                          onClick={() => { setTenantForm(prev => ({ ...prev, moveIn: time.value })); toggleDropdown(null); }}
-                          className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-pink-50"
-                        >
-                          {time.title}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">WhatsApp Number</label>
-                  <div className="relative flex items-center">
-                    <Phone className="w-4 h-4 text-slate-400 absolute left-3" />
-                    <input 
-                      type="tel" 
-                      required
-                      placeholder="+971500000000"
-                      value={tenantForm.whatsappNumber}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setTenantForm(prev => ({ ...prev, whatsappNumber: e.target.value }))}
-                      className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* 💡 AMENITIES FIELD (Enter Tagging System Layout) */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Amenities</label>
-                <p className="text-sm text-slate-400 mb-1.5 font-medium">Type an amenity (e.g. Balcony, Wifi) and press Enter</p>
-                <div className="relative flex items-center">
-                  <input
-                    type="text"
-                    placeholder="Type amenity here..."
-                    value={amenityInput}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setAmenityInput(e.target.value)}
-                    onKeyDown={handleAddAmenity}
-                    className="w-full pl-4 pr-12 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-[#ff0066]"
-                  />
-                  
-                  {/* + Button positioned neatly over the right side of the input field */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Simulates the exact Enter behavior by passing a fake event to your existing handler
-                      const fakeEvent = {
-                        key: 'Enter',
-                        preventDefault: () => {}
-                      } as React.KeyboardEvent<HTMLInputElement>;
-                      handleAddAmenity(fakeEvent);
-                    }}
-                    className="absolute right-2 px-5 py-4 rounded-lg bg-pink-50 hover:bg-pink-100 text-[#ff0066] font-bold text-lg leading-none transition-colors cursor-pointer w-7 h-7 flex items-center justify-center"
-                    title="Add Amenity"
-                  >
-                    +
-                  </button>
-                </div>
-                {tenantForm.amenities.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2.5">
-                    {tenantForm.amenities.map((item, idx) => (
-                      <span key={idx} className="inline-flex items-center gap-1 text-xs bg-pink-50 text-[#ff0066] px-2.5 py-1 rounded-lg font-bold border border-pink-100">
-                        {item}
-                        <button type="button" onClick={() => handleRemoveAmenity(idx)} className="hover:bg-pink-100 rounded p-0.5">
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 💡 ROOM PROPERTY IMAGES UPLOAD ACCORDING TO SCHEMA */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Room / Property Images</label>
-                <div className="mt-1 border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-pink-400 transition-colors relative bg-slate-50/50">
-                  <input 
-                    type="file" 
-                    multiple 
-                    required
-                    accept="image/*" 
-                    onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  />
-                  <div className="flex flex-col items-center justify-center gap-1">
-                    <ImageIcon className="w-8 h-8 text-slate-400" />
-                    <span className="text-xs font-bold text-slate-600">Click to upload room images</span>
-                    <span className="text-[10px] text-slate-400">Upload at least 1 photo</span>
-                  </div>
-                </div>
-                {selectedImages && selectedImages.length > 0 && (
-                  <div className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Selected {selectedImages.length} image(s) ready to upload
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3.5 mt-2 rounded-xl bg-[#ff0066] hover:bg-[#e6005c] disabled:bg-slate-300 text-white font-extrabold text-sm tracking-wide uppercase transition-all flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                <span>{isSubmitting ? 'Submitting...' : 'Submit Post'}</span>
-              </button>
-            </form>
           </div>
         </div>
       )}
