@@ -2,6 +2,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { client } from '../sanity/lib/client';
 import { urlFor } from '../sanity/lib/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import PropertyForm from "@/components/PropertyForm";
 import { 
   Home, 
   Columns, 
@@ -12,7 +14,8 @@ import {
   Search, 
   SlidersHorizontal, 
   X, 
-  Check, 
+  Check,
+  Info, 
   ChevronDown, 
   LayoutGrid, 
   List, 
@@ -28,7 +31,8 @@ import {
   Clock,
   ExternalLink,
   MessageCircle,
-  HelpCircle
+  HelpCircle,
+  Building
 } from 'lucide-react';
 
 // Interfaces for full TypeScript safety
@@ -61,6 +65,7 @@ export default function App() {
   const [sortBy, setSortBy] = useState<string>('default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isListingModalOpen, setIsListingModalOpen] = useState(false)
   
   // Selected Property Modal State
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -89,6 +94,36 @@ export default function App() {
     'Family Allowed',
     'AC Included'
   ];
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [showNotification, setShowNotification] = useState(false);
+
+  // Read the URL query param on mount/change
+  const notifParam = searchParams.get('notif');
+
+    useEffect(() => {
+        if (notifParam === 'submitted') {
+        setShowNotification(true);
+        setIsListingModalOpen(false);
+
+        // 1. Set a 4-second timeout to hide the notification banner visually
+        const hideTimeout = setTimeout(() => {
+            setShowNotification(false);
+        }, 4000);
+
+        // 2. Set a 4.5-second timeout to cleanly scrub the query param from the address bar
+        const cleanUrlTimeout = setTimeout(() => {
+            // router.replace changes the URL without adding a new history entry
+            router.replace('/properties'); 
+        }, 4500);
+
+        return () => {
+            clearTimeout(hideTimeout);
+            clearTimeout(cleanUrlTimeout);
+        };
+        }
+    }, [notifParam, router]);
 
   // Live data from Sanity (fetched client-side)
   const [propertiesData, setPropertiesData] = useState<Property[]>([]);
@@ -246,6 +281,17 @@ export default function App() {
 
     return (
         <div className="min-h-screen text-slate-800 font-sans">
+            {showNotification && (
+                <div className='w-full absolute right-0 top-30 z-50 flex items-end justify-end'>
+                    <div className="w-md mb-6 bg-green-400 border-l-4 border-green-700 p-4 rounded-xl flex items-start justify-end  gap-3 text-black animate-fadeIn shadow-sm">
+                        <Check className="text-amber-600 shrink-0 mt-0.5" size={20} />
+                        <div>
+                            <p className="font-bold text-base">Listing Uploaded Successfully!</p>
+                            <p className="text-sm text-amber-900 mt-0.5">Your property details have been saved. Your post will appear publicly on this dashboard once reviewed and verified by an admin.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* ==========================================
                 SEARCH BAR & PAGE BRIEF
                 ========================================== */}
@@ -254,6 +300,13 @@ export default function App() {
             >
                 {/* <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff0066]/10 rounded-full blur-3xl pointer-events-none"/> */}
                 
+                <div className="absolute inset-0 z-0">
+                    <img 
+                        src="/images/header-image.webp" // Replace with your image URL
+                        alt="Hero Background"
+                        className="w-full h-full object-cover opacity-20" // Adjust opacity here to mix with the dark background
+                    />
+                </div>
                 <div className="container mx-auto space-y-6 relative z-10 text-center md:text-left">
                     <div className="space-y-2">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold text-white bg-[#ff0066]/15 border border-[#ff0066]/20">
@@ -265,6 +318,24 @@ export default function App() {
                         <p className="text-slate-700 text-xs sm:text-sm md:text-base font-semibold max-w-2xl">
                             Filter through professional rooms, luxury studios, cost-friendly shared spaces, or full family suites with active direct WhatsApp connects.
                         </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-start md:justify-flex-start gap-3 pt-2">
+                        <button 
+                            onClick={() => setIsListingModalOpen(true)}
+                            className="h-11 px-6 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-extrabold text-base uppercase tracking-wider transition-all"
+                        >
+                            List Your Property
+                        </button>
+                        <button 
+                            onClick={() => {
+                                const el = document.getElementById('properties');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="h-11 px-6 bg-[#1a1625] hover:bg-[#252033] text-white border border-slate-800 rounded-xl font-bold text-base uppercase tracking-wider transition-colors"
+                        >
+                            View Properties
+                        </button>
                     </div>
 
                     {/* Fast Search input wrapper */}
@@ -297,7 +368,7 @@ export default function App() {
             {/* ==========================================
                 MAIN EXPLORER GRID: Left Filters / Right Grid
                 ========================================== */}
-            <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main id='properties' className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 
                 {/* Results Info Bar */}
                 <div className="flex flex-col sm:flex-row items-start gap-3 sm:items-center justify-between mb-6 pb-4 border-b border-slate-200">
@@ -883,6 +954,41 @@ export default function App() {
 
                         </div>
 
+                    </div>
+                </div>
+            )}
+
+            {/* =========================================================
+                    POPUP MODAL: List Property Quick Form Modal
+                    ========================================================= */}
+            {isListingModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+                    <div className="bg-white rounded-4xl shadow-2xl border border-slate-100 w-full max-w-3xl p-6 sm:p-8 relative overflow-hidden my-auto animate-in zoom-in-95 duration-200">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl pointer-events-none -z-10" />
+                    
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div className="flex items-center gap-2.5">
+                        <div className="p-2 bg-blue-50 text-[#0052cc] rounded-xl">
+                            <Building className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h4 className="text-lg font-extrabold text-slate-800">Quick Property Listing</h4>
+                            <p className="text-xs text-slate-400">Gets published to active tenants instantly</p>
+                        </div>
+                        </div>
+                        <button 
+                            onClick={() => setIsListingModalOpen(false)}
+                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+        
+                    {/* Scrollable Form Body Container */}
+                    <div className="overflow-y-auto text-left">
+                        <PropertyForm />
+                    </div>
+        
                     </div>
                 </div>
             )}

@@ -4,40 +4,74 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { writeClient } from '@/sanity/lib/sanity.write';
 
-// 🟢 CREATE PROPERTY (POST) - Fully optimized for your FormData + Images upload
+// 🟢 CREATE PROPERTY (POST) - Supports Authenticated Users and "Public Guest" Fallback
 export async function POST(request: Request) {
   try {
-    // 1. Verify Session Authenticity
+    // 1. Optional Session Discovery
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id;
-    if (!session || !userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    
+    let authorId = "";
 
-    // 2. Extract Data via Form Data Matrix instead of request.json()
+    if (session?.user?.email) {
+      // 💡 User is logged in: Query Sanity to find their corresponding 'user' document id
+      const userDoc = await writeClient.fetch(
+        `*[_type == "user" && email == $email][0]._id`,
+        { email: session.user.email }
+      );
+      
+      if (userDoc) {
+        authorId = userDoc;
+      }
+    }
+
+    // 💡 2. Fallback if the user is un-registered or not logged in
+    if (!authorId) {
+      // Uses your designated "Public Guest" profile document ID from Sanity Studio
+      authorId = "9ad23d3e-dff9-45d1-91e0-6c3bbbc4f47a"; 
+    }
+
+    // 3. Extract Data via Form Data Matrix
     const formData = await request.formData();
 
     const title = formData.get('title') as string;
     const propertyType = formData.get('propertyType') as string;
     const location = formData.get('location') as string;
-    const monthlyRent = Number(formData.get('monthlyRent'));
+    const buildingName = formData.get('buildingName') as string;
+    const purpose = formData.get('purpose') as 'rent' | 'sell';
+    const price = Number(formData.get('price'));
+    const billingCycle = formData.get('billingCycle') as string;
+    const isAllInclusive = formData.get('isAllInclusive') === 'true';
     const overview = formData.get('overview') as string;
     const idealOccupancy = formData.get('idealOccupancy') as string;
-    const preference = formData.get('preference') as string;
-    const isAllInclusive = formData.get('isAllInclusive') === 'true';
     
-    // Contact information fields
+    // Quantitative parameters
+    const bedrooms = formData.get('bedrooms') ? Number(formData.get('bedrooms')) : undefined;
+    const totalBedsInRoom = formData.get('totalBedsInRoom') ? Number(formData.get('totalBedsInRoom')) : undefined;
+    const bathrooms = formData.get('bathrooms') ? Number(formData.get('bathrooms')) : undefined;
+    const isEnsuite = formData.get('isEnsuite') === 'true';
+    const floorNumber = formData.get('floorNumber') ? Number(formData.get('floorNumber')) : undefined;
+    const sizeSqFt = formData.get('sizeSqFt') ? Number(formData.get('sizeSqFt')) : undefined;
+
+    // Contact Object fields
     const contactName = formData.get('contactName') as string;
     const whatsappPhone = formData.get('whatsappPhone') as string;
     const displayPhone = formData.get('displayPhone') as string;
 
-    // Arrays: Amenities & Images
-    const includedAmenities = formData.getAll('includedAmenities') as string[];
+    // Arrays & Files
+    const amenities = formData.getAll('amenities') as string[];
     const imageFiles = formData.getAll('images') as File[];
 
-    if (!title || !location || !monthlyRent || imageFiles.length === 0) {
-      return NextResponse.json({ error: 'Missing required property details or images' }, { status: 400 });
+    // Baseline validation constraints
+    if (!title || !location || isNaN(price) || imageFiles.length === 0) {
+      return NextResponse.json({ error: 'Missing required layout fields' }, { status: 400 });
     }
 
-    // 3. Process image uploads sequentially to Sanity Lake
+    // Double-check contact details are present for safety
+    if (!contactName || !whatsappPhone || !displayPhone) {
+      return NextResponse.json({ error: 'Contact details (Name, WhatsApp, and Phone) are required.' }, { status: 400 });
+    }
+
+    // 4. Process image uploads sequentially to Sanity Asset Store
     const imageAssetReferences = [];
     for (const file of imageFiles) {
       if (file.size > 0) {
@@ -45,32 +79,50 @@ export async function POST(request: Request) {
           filename: file.name,
         });
         imageAssetReferences.push({
-          _key: crypto.randomUUID(), // Sanity arrays require an explicit unique string key
+          _key: crypto.randomUUID(),
           _type: 'image',
           asset: { _type: 'reference', _ref: asset._id }
         });
       }
     }
 
-    // 4. Construct the structured document for Sanity
+    // Generate basic, web-safe slug configuration from the title parameter
+    const generatedSlug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-');
+
+    // 5. Construct the structured document payload matching your Sanity schema layout rules
     const newProperty = await writeClient.create({
       _type: 'property',
-      status: 'pending', // Re-verify through admin queues
-      author: { _type: 'reference', _ref: userId },
+      isActive: false, // Keep hidden until admin verification
+      isVerified: false,
+      status: 'active',
+      author: { _type: 'reference', _ref: authorId }, // Always references a valid user profile now
       title,
+      slug: {
+        _type: 'slug',
+        current: `${generatedSlug}-${Date.now().toString().slice(-6)}`
+      },
+      images: imageAssetReferences,
       propertyType,
       location,
-      monthlyRent,
+      buildingName: buildingName || undefined,
+      purpose,
+      price,
+      billingCycle: purpose === 'sell' ? null : billingCycle,
+      isAllInclusive: purpose === 'sell' ? false : isAllInclusive,
       overview,
       idealOccupancy,
-      preference,
-      isAllInclusive,
-      amenities: includedAmenities,
-      // Map main card preview to index 0, map remaining assets into gallery array
-      mainImage: imageAssetReferences[0] ? { _type: 'image', asset: imageAssetReferences[0].asset } : undefined,
-      gallery: imageAssetReferences,
+      bedrooms,
+      totalBedsInRoom,
+      bathrooms,
+      isEnsuite,
+      floorNumber,
+      sizeSqFt,
+      includedAmenities: amenities,
       contactDetails: {
-        contactName,
+        name: contactName,
         whatsappPhone,
         displayPhone,
       }
@@ -83,7 +135,7 @@ export async function POST(request: Request) {
   }
 }
 
-// 🔵 READ ALL PROPERTIES FOR USER (GET) - Keeps your working user profile fetch intact
+// 🔵 READ ALL PROPERTIES FOR USER (GET)
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -91,7 +143,7 @@ export async function GET() {
     if (!session || !userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const listings = await writeClient.fetch(
-      `*[_type == "property" && author._ref == $userId]`,
+      `*[_type == "property" && author._ref == $userId] | order(_createdAt desc)`,
       { userId }
     );
     return NextResponse.json({ success: true, data: listings });

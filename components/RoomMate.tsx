@@ -496,10 +496,10 @@ export default function RoommatesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           
           {/* Backdrop click to close */}
-          <div 
+          {/* <div 
             onClick={() => setIsTenantModalOpen(false)} 
             className="absolute inset-0 cursor-pointer" 
-          />
+          /> */}
           
           {/* Form Modal Box Card */}
           <div className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">

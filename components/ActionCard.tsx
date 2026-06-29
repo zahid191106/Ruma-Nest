@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, ChangeEvent, FormEvent, useEffect, useRef, KeyboardEvent } from 'react';
 import TenantForm from '@/components/TanentForm';
+import PropertyForm from '@/components/PropertyForm';
 import { 
   MapPin, 
   Users, 
@@ -510,7 +511,7 @@ export default function App() {
          ========================================================= */}
       {isListingModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white rounded-4xl shadow-2xl border border-slate-100 w-full max-w-lg p-6 sm:p-8 relative overflow-hidden my-auto animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-4xl shadow-2xl border border-slate-100 w-full max-w-3xl p-6 sm:p-8 relative overflow-hidden my-auto animate-in zoom-in-95 duration-200">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl pointer-events-none -z-10" />
             
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -531,112 +532,11 @@ export default function App() {
               </button>
             </div>
 
-            <form onSubmit={handlePropertySubmit} className="space-y-4 pt-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Listing Title</label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="e.g., Cozy Master Room with Balcony"
-                  value={propertyForm.title}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setPropertyForm(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
-              </div>
+            {/* Scrollable Form Body Container */}
+            <div className="overflow-y-auto text-left">
+              <PropertyForm />
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Property Type</label>
-                  <select
-                    value={propertyForm.type}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setPropertyForm(prev => ({ ...prev, type: e.target.value }))}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none bg-white"
-                  >
-                    {propertyTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Monthly Rent (AED)</label>
-                  <input 
-                    type="number" 
-                    required
-                    placeholder="e.g., 1800"
-                    value={propertyForm.price}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setPropertyForm(prev => ({ ...prev, price: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Location Area</label>
-                <div className="relative">
-                  <div className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all flex items-center gap-2.5">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                    <input
-                      type="text"
-                      placeholder="Type area (e.g., Khalidiya, Yas Island)..."
-                      value={searchQuery}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                      onFocus={() => searchQuery.length >= 3 && setIsLocationOpen(true)}
-                      className="w-full bg-transparent h-full text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
-                    />
-                    {isApiLoading && <Loader2 className="w-4 h-4 text-slate-500 animate-spin shrink-0" />}
-                    {searchQuery && !isApiLoading && (
-                      <button type="button" onClick={clearInputHandler} className="p-0.5 hover:bg-slate-200 rounded-full shrink-0 cursor-pointer">
-                        <X className="w-3.5 h-3.5 text-slate-500" />
-                      </button>
-                    )}
-                  </div>
-
-                  {isLocationOpen && suggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden max-h-60 overflow-y-auto p-1">
-                      {suggestions.map(item => (
-                        <button
-                          key={item.place_id}
-                          type="button"
-                          onClick={() => selectLocationHandler(item.formatted)}
-                          className={`w-full px-3 py-2 text-left text-sm font-medium cursor-pointer rounded-xl transition-all flex items-center justify-between ${propertyForm.location === item.formatted ? 'bg-rose-50 text-[#ff0066] font-semibold' : 'text-slate-700 hover:bg-slate-50'}`}>
-                          <span className="truncate pr-2">{item.formatted}</span>
-                          {propertyForm.location === item.formatted && <Check className="w-4 h-4 text-[#ff0066] shrink-0" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">WhatsApp Number</label>
-                <input 
-                  type="tel" 
-                  required
-                  placeholder="+971 50 123 4567"
-                  value={propertyForm.whatsapp}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setPropertyForm(prev => ({ ...prev, whatsapp: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Short Description</label>
-                <textarea 
-                  rows={2}
-                  placeholder="Tell tenants about utilities, flatmates, or key details..."
-                  value={propertyForm.description}
-                  onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setPropertyForm(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3.5 mt-2 rounded-xl bg-[#0052cc] hover:bg-[#0043b3] text-white font-extrabold text-sm tracking-wide uppercase transition-colors"
-              >
-                Submit Listing
-              </button>
-            </form>
           </div>
         </div>
       )}

@@ -184,6 +184,30 @@ export default function CarLiftDirectoryPage() {
 
       {/* --- HERO SECTION --- */}
       <div className="relative shadow-xl rounded-3xl text-white overflow-hidden pb-24 pt-12 md:pt-16">
+        <img 
+          src="/images/car-slide-1.webp" 
+          alt="Car Lift Prompt" 
+          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+          style={{ animationDelay: '0s' }} 
+        />
+        <img 
+          src="/images/car-slide-2.webp" 
+          alt="Car Lift Prompt" 
+          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+          style={{ animationDelay: '4s' }} 
+        />
+        <img 
+          src="/images/car-slide-3.webp" 
+          alt="Car Lift Prompt" 
+          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+          style={{ animationDelay: '8s' }} 
+        />
+        <img 
+          src="/images/car-slide-4.webp" 
+          alt="Car Lift Prompt" 
+          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+          style={{ animationDelay: '12s' }} 
+        />
         {/* Deep dark radiant light overlay matching reference */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,rgba(219,39,119,0.15),transparent_60%)]" />
         
@@ -191,7 +215,7 @@ export default function CarLiftDirectoryPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left Content Column */}
-            <div className="lg:col-span-7 space-y-6 text-center md:text-left">
+            <div className="lg:col-span-6 space-y-6 text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-900/80 border border-slate-800 rounded-full text-sm font-semibold text-slate-300">
                 <span className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse" />
                 Active Abu Dhabi Routes Live Now
@@ -243,8 +267,8 @@ export default function CarLiftDirectoryPage() {
             </div>
 
             {/* Right Graphics Frame Column */}
-            <div className="lg:col-span-5 relative hidden md:block">
-              <div className="relative mx-auto max-w-md lg:max-w-none">
+            <div className="lg:col-span-6 relative hidden md:block">
+              <div className="relative mx-auto w-full lg:max-w-none">
                 <div className="rounded-3xl border-4 border-pink-500/10 overflow-hidden shadow-2xl aspect-4/3 ">
                   <img 
                     src="/images/car-lift.webp" 
@@ -271,7 +295,7 @@ export default function CarLiftDirectoryPage() {
       </div>
 
       {/* --- FLOATING CONTROLS & DESK ENGINE --- */}
-      <div id="routes-matrix" className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
+      <div id="routes-matrix" className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         
         {/* Precise Filter Requirements Header Frame matching Screenshot from 2026-06-26 23-43-40.jpg */}
         <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xl space-y-4">

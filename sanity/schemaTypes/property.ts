@@ -5,6 +5,14 @@ export default defineType({
   title: 'Property Listing',
   type: 'document',
   fields: [
+    // --- ADMIN CONTROLS ---
+    defineField({
+      name: 'isActive',
+      title: 'Is Active Listing',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Admin toggle to show/hide this shared accommodation post on the public website.',
+    }),
     defineField({
       name: 'author',
       title: 'Posted By',
@@ -19,6 +27,17 @@ export default defineType({
       type: 'string',
       description: 'e.g., Premium Master Room with Attached Bath',
       validation: (Rule) => Rule.required().min(5).max(100),
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      description: 'Generates clean URLs automatically from the title',
+      options: {
+        source: 'title',
+        maxLength: 96,
+      },
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'images',
@@ -58,18 +77,64 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'monthlyRent',
-      title: 'Monthly Rent (AED)',
+      name: 'buildingName',
+      title: 'Building / Tower Name',
+      type: 'string',
+      description: 'e.g., Marina Gate, Diamond Views 3',
+    }),
+    // 4. FINANCIALS & LISTING TYPE
+    defineField({
+      name: 'purpose',
+      title: 'Listing Purpose',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'For Rent', value: 'rent' },
+          { title: 'For Sell', value: 'sell' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'rent',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'price',
+      title: 'Price (AED)',
       type: 'number',
+      description: 'Enter the total selling price or the recurring rental amount',
       validation: (Rule) => Rule.required().min(0),
     }),
-    // defineField({
-    //   name: 'isAllInclusive',
-    //   title: 'Is All-Inclusive?',
-    //   type: 'boolean',
-    //   description: 'Appends "(All-Inclusive)" text next to the price if checked',
-    //   initialValue: true,
-    // }),
+    defineField({
+      name: 'billingCycle',
+      title: 'Billing Cycle',
+      type: 'string',
+      description: 'How frequently is the rent paid? (Hidden if listing is For Sell)',
+      // Automatically hides this selector inside Sanity Studio if the property is for sale
+      hidden: ({ document }) => document?.purpose === 'sell',
+      options: {
+        list: [
+          { title: 'Daily', value: 'daily' },
+          { title: 'Weekly', value: 'weekly' },
+          { title: 'Monthly', value: 'monthly' },
+          { title: 'Yearly', value: 'yearly' },
+        ],
+      },
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          // Only make billing cycle mandatory if it's a rental property
+          if (context.document?.purpose === 'rent' && !value) {
+            return 'Billing cycle is required for rental properties'
+          }
+          return true
+        }),
+    }),
+    defineField({
+      name: 'isAllInclusive',
+      title: 'Is All-Inclusive?',
+      type: 'boolean',
+      description: 'Appends "(All-Inclusive DEWA & WiFi)" text next to the price if checked',
+      initialValue: true,
+    }),
     defineField({
       name: 'overview',
       title: 'Overview Details / Description',
@@ -85,31 +150,56 @@ export default defineType({
       description: 'e.g., Solo / Couple, Bachelors, Females Only',
       initialValue: 'Solo / Couple',
     }),
+    // 5. PROPERTY SPECS & ROOM DETAILS
     defineField({
-      name: 'preference',
-      title: 'Preference / Nationality',
-      type: 'string',
-      description: 'e.g., Any Nationality, Arab, South Asian',
-      initialValue: 'Any Nationality',
+      name: 'bedrooms',
+      title: 'Total Bedrooms in Flat',
+      type: 'number',
+      description: 'How many total rooms are in the whole apartment (e.g., 1, 2, 3 BHK)',
+      validation: (Rule) => Rule.min(1),
+    }),
+    defineField({
+      name: 'totalBedsInRoom',
+      title: 'Total Beds in this Specific Room',
+      type: 'number',
+      description: 'Crucial for Bed Space listings (e.g., 2 beds, 4 beds sharing). Set to 1 if it is a private room.',
+      initialValue: 1,
+      validation: (Rule) => Rule.min(1),
+    }),
+    defineField({
+      name: 'bathrooms',
+      title: 'Number of Bathrooms',
+      type: 'number',
+      description: 'Number of bathrooms available (or shared) for this listing',
+      validation: (Rule) => Rule.min(1),
+    }),
+    defineField({
+      name: 'isEnsuite',
+      title: 'Attached / Ensuite Bathroom?',
+      type: 'boolean',
+      description: 'Check this if the bathroom is private/attached inside the room',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'floorNumber',
+      title: 'Floor Number',
+      type: 'number',
+      description: 'e.g., 14th Floor (Great info for high-rise Dubai buildings)',
+    }),
+    defineField({
+      name: 'sizeSqFt',
+      title: 'Size (Sq. Ft.)',
+      type: 'number',
+      description: 'Standard local measurement unit',
     }),
     // Expanded details amenities
     defineField({
       name: 'includedAmenities',
-      title: 'Included Amenities',
+      title: 'Amenities',
       type: 'array',
-      description: 'Select all features that apply to show as checks under Included Amenities',
+      description: 'Type an amenity (e.g., Balcony, Washing Machine) and press Enter to add it to the list.',
       of: [{ type: 'string' }],
-      options: {
-        list: [
-          { title: 'Fully Furnished', value: 'Fully Furnished' },
-          { title: 'WiFi Included', value: 'WiFi Included' },
-          { title: 'Near Bus Stop', value: 'Near Bus Stop' },
-          { title: 'AC Included', value: 'AC Included' },
-          { title: 'Neat & Clean', value: 'Neat & Clean' },
-          { title: 'Separate Kitchen', value: 'Separate Kitchen' },
-          { title: 'Gym & Pool', value: 'Gym & Pool' },
-        ],
-      },
+      validation: (Rule) => Rule.required().min(1).error('Please add at least one amenity.'),
     }),
     defineField({
       name: 'status',
