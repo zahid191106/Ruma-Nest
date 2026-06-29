@@ -336,7 +336,6 @@ export default function RoommatesPage() {
             <div>
               <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Max Budget (AED)</label>
               <div className="relative flex items-center">
-                <DollarSign className="w-4 h-4 text-slate-400 absolute left-3" />
                 <input 
                   type="number" required min={1} placeholder="e.g., 1500" value={tenantForm.priceAmount}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setTenantForm(prev => ({ ...prev, priceAmount: e.target.value }))}

@@ -35,7 +35,7 @@ import {
 interface Property {
   id: string;
   title: string;
-  category: 'Room' | 'Partition' | 'Studio' | 'Bed Space' | 'Apartment';
+  category: 'Room' | 'Studio' | 'Bed Space' | 'Apartment';
   location: string;
   address: string;
   price: number;
@@ -67,7 +67,7 @@ export default function App() {
   const [activeModalImageIdx, setActiveModalImageIdx] = useState<number>(0);
 
   // Lists of options
-  const categories = ['Room', 'Partition', 'Studio', 'Bed Space', 'Apartment'];
+  const categories = ['Room', 'Studio', 'Bed Space', 'Apartment'];
   const locations = [
     'Al Wahda', 
     'Mussafah', 
@@ -109,9 +109,8 @@ export default function App() {
       const primaryImage = images[0] || '/images/action-image-1.avif';
 
       // Updated mapping to support all variations cleanly
-      const typeMap: Record<string, 'Room' | 'Partition' | 'Studio' | 'Bed Space' | 'Apartment'> = {
+      const typeMap: Record<string, 'Room' | 'Studio' | 'Bed Space' | 'Apartment'> = {
         room: 'Room',
-        partition: 'Partition',
         studio: 'Studio',
         bed_space: 'Bed Space',
         apartment: 'Apartment'
@@ -264,7 +263,7 @@ export default function App() {
                         Explore Spaces In <span className="text-[#ff0066]">Abu Dhabi</span>
                         </h2>
                         <p className="text-slate-700 text-xs sm:text-sm md:text-base font-semibold max-w-2xl">
-                            Filter through professional rooms, custom partition enclosures, luxury studios, cost-friendly shared spaces, or full family suites with active direct WhatsApp connects.
+                            Filter through professional rooms, luxury studios, cost-friendly shared spaces, or full family suites with active direct WhatsApp connects.
                         </p>
                     </div>
 

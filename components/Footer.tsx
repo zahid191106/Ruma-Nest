@@ -65,7 +65,6 @@ export default function App() {
             </h3>
             <ul className="space-y-2.5 text-xs sm:text-sm font-bold">
               <li><a href="#room" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Room</span></a></li>
-              <li><a href="#partition" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Partition</span></a></li>
               <li><a href="#studio" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Studio</span></a></li>
               <li><a href="#bedspace" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Bed Space</span></a></li>
               <li><a href="#apartment" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Apartment</span></a></li>

@@ -56,7 +56,6 @@ export default function HomePage() {
     // Categories based on screenshot
     const categories = [
         { id: 'Room', label: 'Room', icon: Home },
-        // { id: 'Partition', label: 'Partition', icon: Columns },
         { id: 'Studio', label: 'Studio', icon: Grid },
         { id: 'Bed Space', label: 'Bed Space', icon: Bed },
         { id: 'Apartment', label: 'Apartment', icon: Building2 },

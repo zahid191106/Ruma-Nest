@@ -290,7 +290,30 @@ export default function Carlift() {
               {/* <img src="/images/car-2.avif" alt="Car Lift Prompt" className='absolute -right-10 -bottom-5' /> */}
             </div>
 
-            <img src="/images/car-3.webp" alt="Car Lift Prompt" className='absolute -bottom-22 sm:-bottom-42 animate-car-move will-change-transform' />
+            <img 
+              src="/images/car-slide-1.webp" 
+              alt="Car Lift Prompt" 
+              className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+              style={{ animationDelay: '0s' }} 
+            />
+            <img 
+              src="/images/car-slide-2.webp" 
+              alt="Car Lift Prompt" 
+              className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+              style={{ animationDelay: '4s' }} 
+            />
+            <img 
+              src="/images/car-slide-3.webp" 
+              alt="Car Lift Prompt" 
+              className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+              style={{ animationDelay: '8s' }} 
+            />
+            <img 
+              src="/images/car-slide-4.webp" 
+              alt="Car Lift Prompt" 
+              className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+              style={{ animationDelay: '12s' }} 
+            />
           </div>
         </div>
       </div>
