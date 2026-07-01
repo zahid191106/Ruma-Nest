@@ -16,7 +16,7 @@ export default function UploadPropertyForm() {
   const [fields, setFields] = useState({
     title: '', propertyType: 'room', location: '', monthlyRent: '', 
     overview: '', idealOccupancy: 'Solo / Couple', preference: 'Any Nationality',
-    isAllInclusive: true, contactName: '', whatsappPhone: '', displayPhone: ''
+    isAllInclusive: true, contactName: '', whatsappPhone: ''
   })
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
   const [images, setImages] = useState<FileList | null>(null)
@@ -133,10 +133,6 @@ export default function UploadPropertyForm() {
             <div>
               <label className="text-xs font-semibold text-gray-600">WhatsApp Link Number</label>
               <input type="text" required placeholder="971501234567" className="w-full mt-1 p-2 bg-gray-50 border rounded-xl text-sm focus:outline-emerald-500" value={fields.whatsappPhone} onChange={e => setFields({...fields, whatsappPhone: e.target.value})} />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-600">Display Phone Number</label>
-              <input type="text" required placeholder="+971 50 123 4567" className="w-full mt-1 p-2 bg-gray-50 border rounded-xl text-sm focus:outline-emerald-500" value={fields.displayPhone} onChange={e => setFields({...fields, displayPhone: e.target.value})} />
             </div>
           </div>
         </div>

@@ -55,7 +55,6 @@ export async function POST(request: Request) {
     // Contact Object fields
     const contactName = formData.get('contactName') as string;
     const whatsappPhone = formData.get('whatsappPhone') as string;
-    const displayPhone = formData.get('displayPhone') as string;
 
     // Arrays & Files
     const amenities = formData.getAll('amenities') as string[];
@@ -67,8 +66,8 @@ export async function POST(request: Request) {
     }
 
     // Double-check contact details are present for safety
-    if (!contactName || !whatsappPhone || !displayPhone) {
-      return NextResponse.json({ error: 'Contact details (Name, WhatsApp, and Phone) are required.' }, { status: 400 });
+    if (!contactName || !whatsappPhone) {
+      return NextResponse.json({ error: 'Contact details (Name and WhatsApp) are required.' }, { status: 400 });
     }
 
     // 4. Process image uploads sequentially to Sanity Asset Store
@@ -124,7 +123,6 @@ export async function POST(request: Request) {
       contactDetails: {
         name: contactName,
         whatsappPhone,
-        displayPhone,
       }
     });
 

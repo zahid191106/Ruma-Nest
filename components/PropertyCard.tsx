@@ -12,6 +12,8 @@ import {
   Bed, 
   Bus, 
   Tv,
+  Home,
+  Ruler,
   HelpCircle,
   Dumbbell,
   Check,
@@ -39,16 +41,28 @@ interface SanityProperty {
   title: string;
   propertyType: string;
   location: string;
-  monthlyRent: number;
-  mainImage?: any;
+  buildingName?: string;
+  price: number;
+  purpose: 'rent' | 'sell';
+  billingCycle?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  isAllInclusive?: boolean;
   images?: any[];
   includedAmenities: string[];
   status: string;
   isVerified?: boolean;
-  description: string;
-  occupancy: string;
-  nationalityPrefer: string;
+  overview: string;
+  idealOccupancy?: string;
+  bedrooms?: number;
+  totalBedsInRoom?: number;
+  bathrooms?: number;
+  isEnsuite?: boolean;
+  floorNumber?: number;
+  sizeSqFt?: number;
+  author?: { _ref: string };
+  slug?: { current: string };
+  isActive?: boolean;
   contactDetails?: {
+    name?: string;
     whatsappPhone?: string;
   };
 }
@@ -60,21 +74,32 @@ export default function FeaturedProperties() {
   const [properties, setProperties] = useState<SanityProperty[]>([]);
 
   // GROQ Query: Pulls 4 pending/approved properties
-  const query = `*[_type == "property" && status == "active"][0...4]{
+  const query = `*[_type == "property" && isActive == true && status == "active"][0...4]{
     _id,
     title,
     propertyType,
     location,
-    monthlyRent,
+    buildingName,
+    price,
+    purpose,
+    billingCycle,
+    isAllInclusive,
     images,
-    mainImage,
     includedAmenities,
     status,
     isVerified,
+    overview,
+    idealOccupancy,
+    bedrooms,
+    totalBedsInRoom,
+    bathrooms,
+    isEnsuite,
+    floorNumber,
+    sizeSqFt,
+    slug,
+    author,
     contactDetails,
-    description,
-    occupancy,
-    nationalityPrefer
+    isActive
   }`;
 
   useEffect(() => {
@@ -132,7 +157,7 @@ export default function FeaturedProperties() {
             const Tag2Icon = ICON_MAP[tag2Label] || ICON_MAP['Default'];
             
             const fallbackImg = "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=400&q=80";
-            const imageSource = prop.images?.[0] || prop.mainImage;
+            const imageSource = prop.images?.[0];
             const computedImageUrl = imageSource ? urlFor(imageSource).width(800).height(600).url() : fallbackImg;
 
             return (
@@ -149,6 +174,11 @@ export default function FeaturedProperties() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
+                  {/* purpose tag Overlay */}
+                  <span className="absolute top-4 left-4 bg-[#ff0066] text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-full uppercase">
+                      {prop.purpose}
+                  </span>
+
                   <span className="absolute bottom-3 left-3 bg-[#ff0066] text-white text-xs font-black tracking-wider px-4 py-1 rounded-full uppercase shadow-sm">
                     {prop.propertyType?.replace('_', ' ')}
                   </span>
@@ -172,10 +202,27 @@ export default function FeaturedProperties() {
                     </div>
                     <p className="text-slate-800 font-medium text-xs">
                       <span className="text-base sm:text-lg font-black text-[#0a192f]">
-                        AED {prop.monthlyRent?.toLocaleString()}
+                        AED {prop.price?.toLocaleString()}
                       </span>{' '}
-                      <span className="text-slate-500 font-semibold text-[11px]">/month</span>
+                      <span className="text-slate-500 font-semibold text-[11px]">
+                        {prop.purpose === 'sell' ? '(For Sale)' : `/${prop.billingCycle || 'monthly'}${prop.isAllInclusive ? ' (Inc.)' : ''}`}
+                      </span>
                     </p>
+
+                    <div className="grid grid-cols-3 gap-3 pt-3 text-[11px] sm:text-xs text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <Home className="w-4 h-4 text-[#ff0066] shrink-0" />
+                        <span className="font-semibold truncate">{prop.bedrooms ?? '—'} Rooms</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Bed className="w-4 h-4 text-[#ff0066] shrink-0" />
+                        <span className="font-semibold truncate">{prop.totalBedsInRoom ?? '—'} Beds</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Ruler className="w-4 h-4 text-[#ff0066] shrink-0" />
+                        <span className="font-semibold truncate">{prop.sizeSqFt ? `${prop.sizeSqFt} Sq Ft` : '—'} Area</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Dual Feature Tags */}
@@ -227,7 +274,7 @@ export default function FeaturedProperties() {
           ========================================== */}
       {selectedProperty && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="bg-white rounded-4xl shadow-2xl border border-slate-100 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-200 flex flex-col md:flex-row">
+              <div className="bg-white rounded-4xl shadow-2xl border border-slate-100 w-full max-w-7xl max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-200 flex flex-col md:flex-row">
                   
                   {/* Left Box: Gallery / Visual assets */}
                   <div className="w-full md:w-1/2 bg-slate-900/5 p-4 flex flex-col justify-between md:sticky md:top-0 h-full min-h-75 md:min-h-120">
@@ -236,7 +283,7 @@ export default function FeaturedProperties() {
                           <img 
                               src={
                                 (selectedProperty.images?.[activeModalImageIdx] && urlFor(selectedProperty.images[activeModalImageIdx]).width(1200).url())
-                                || (selectedProperty.mainImage && urlFor(selectedProperty.mainImage).width(1200).url())
+                                || (selectedProperty.images?.[0] && urlFor(selectedProperty.images[0]).width(1200).url())
                                 || "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=1200&q=80"
                               }
                               alt={selectedProperty.title}
@@ -248,12 +295,17 @@ export default function FeaturedProperties() {
                               {selectedProperty.propertyType}
                           </span>
 
+                          {/* purpose tag Overlay */}
+                          <span className="absolute top-4 left-4 bg-[#ff0066] text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-full uppercase">
+                              {selectedProperty.purpose}
+                          </span>
+
                           {selectedProperty.isVerified == true ? (
-                              <span className="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-lg">
+                              <span className="absolute top-4 right-4 bg-emerald-500 text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-lg">
                                   VERIFIED NEST
                               </span>
                           ) : 
-                              <span className="absolute top-3 left-3 bg-slate-100 text-slate-700 border-slate-200 text-sm font-black tracking-wider px-2.5 py-1 rounded-md shadow-sm">
+                              <span className="absolute top-3 right-3 bg-slate-100 text-slate-700 border-slate-200 text-sm font-black tracking-wider px-2.5 py-1 rounded-md shadow-sm">
                                   NOT VERIFIED
                               </span>
                           }
@@ -301,8 +353,10 @@ export default function FeaturedProperties() {
                       </div>
 
                       <div className="flex items-baseline gap-1 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                          <span className="text-2xl font-black text-[#0a192f]">AED {selectedProperty.monthlyRent.toLocaleString()}</span>
-                          <span className="text-slate-500 text-sm font-bold">/ month (All-Inclusive)</span>
+                          <span className="text-2xl font-black text-[#0a192f]">AED {selectedProperty.price.toLocaleString()}</span>
+                          <span className="text-slate-500 text-sm font-bold">
+                            {selectedProperty.purpose === 'sell' ? '(For Sale)' : `/ ${selectedProperty.billingCycle || 'month'}${selectedProperty.isAllInclusive ? ' (All-Inclusive DEWA & WiFi)' : ''}`}
+                          </span>
                       </div>
                   </div>
 
@@ -310,20 +364,60 @@ export default function FeaturedProperties() {
                   <div className="space-y-2">
                       <p className="text-sm sm:text-base font-black text-slate-400 uppercase tracking-widest">Overview Details</p>
                       <p className="text-xs sm:text-base text-slate-600 leading-relaxed font-semibold">
-                          {selectedProperty.description}
+                          {selectedProperty.overview}
                       </p>
                   </div>
 
-                  {/* Key preferences / specifications */}
-                  <div className="grid grid-cols-2 gap-3.5 pt-4 border-t border-slate-100">
-                      <div>
-                          <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Ideal Occupancy</p>
-                          <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.occupancy}</p>
-                      </div>
-                      <div>
-                          <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Preference</p>
-                          <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.nationalityPrefer}</p>
-                      </div>
+                  {/* Property Specifications Grid */}
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                      {selectedProperty.bedrooms && (
+                        <div>
+                            <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Bedrooms</p>
+                            <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.bedrooms} BHK</p>
+                        </div>
+                      )}
+                      {selectedProperty.bathrooms && (
+                        <div>
+                            <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Bathrooms</p>
+                            <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.bathrooms}</p>
+                        </div>
+                      )}
+                      {selectedProperty.totalBedsInRoom && (
+                        <div>
+                            <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Beds in Room</p>
+                            <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.totalBedsInRoom}</p>
+                        </div>
+                      )}
+                      {selectedProperty.isEnsuite !== undefined && (
+                        <div>
+                            <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Bathroom</p>
+                            <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.isEnsuite ? 'Ensuite' : 'Shared'}</p>
+                        </div>
+                      )}
+                      {selectedProperty.sizeSqFt && (
+                        <div>
+                            <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Size</p>
+                            <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.sizeSqFt} Sq. Ft.</p>
+                        </div>
+                      )}
+                      {selectedProperty.floorNumber && (
+                        <div>
+                            <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Floor</p>
+                            <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">Floor {selectedProperty.floorNumber}</p>
+                        </div>
+                      )}
+                      {selectedProperty.buildingName && (
+                        <div className="col-span-2">
+                            <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Building</p>
+                            <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.buildingName}</p>
+                        </div>
+                      )}
+                      {selectedProperty.idealOccupancy && (
+                        <div className="col-span-2">
+                            <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Ideal Occupancy</p>
+                            <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.idealOccupancy}</p>
+                        </div>
+                      )}
                   </div>
 
                   {/* Amenities specifications Checklist */}
@@ -355,7 +449,7 @@ export default function FeaturedProperties() {
                       </a>
 
                       <button
-                          onClick={() => alert(`Connecting securely with ${selectedProperty.occupancy} manager at +${selectedProperty.contactDetails?.whatsappPhone}`)}
+                          onClick={() => alert(`Connecting with ${selectedProperty.contactDetails?.name || 'Property Owner'} at +${selectedProperty.contactDetails?.whatsappPhone}`)}
                           className="py-3.5 px-6 rounded-2xl border-2 border-[#0a192f] text-[#0a192f] hover:bg-slate-50 active:scale-98 text-xs sm:text-sm font-black uppercase tracking-wider transition-all"
                       >
                           Show Phone Number

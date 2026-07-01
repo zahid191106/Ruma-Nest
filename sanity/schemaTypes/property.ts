@@ -230,13 +230,6 @@ export default defineType({
           description: 'Used for chat button redirect link. Format: 971501234567',
           validation: (Rule) => Rule.required(),
         }),
-        defineField({
-          name: 'displayPhone',
-          title: 'Display Phone Number',
-          type: 'string',
-          description: 'The number shown when "Show Phone Number" is clicked (e.g., +971 50 123 4567)',
-          validation: (Rule) => Rule.required(),
-        }),
       ],
     }),
   ],

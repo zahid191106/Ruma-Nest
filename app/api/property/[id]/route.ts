@@ -83,7 +83,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       updateFields.contactDetails = {
         name: contactDetails.contactName || contactDetails.name, // Gracefully maps frontend field naming variations
         whatsappPhone: contactDetails.whatsappPhone,
-        displayPhone: contactDetails.displayPhone,
       };
     }
 

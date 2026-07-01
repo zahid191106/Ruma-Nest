@@ -25,12 +25,12 @@
       transform: translateX(100vw);
     }
     25%, 100% {
-      transform: translateX(-100%);
+      transform: translateX(-100vw);
     }
   }
 
   .animate-car-move {
-    animation: moveLeft 16s linear infinite;
+    animation: moveLeft 16s linear infinite both;
   }
 }
 

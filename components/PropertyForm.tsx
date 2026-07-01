@@ -36,7 +36,6 @@ interface PropertyPostForm {
   amenities: string[];
   contactName: string;
   whatsappPhone: string;
-  displayPhone: string;
   overview: string;
 }
 
@@ -72,7 +71,6 @@ export default function PropertyPostPage() {
     amenities: [],
     contactName: '',
     whatsappPhone: '',
-    displayPhone: '',
     overview: ''
   });
 
@@ -210,7 +208,6 @@ export default function PropertyPostPage() {
       
       formData.append('contactName', propertyForm.contactName);
       formData.append('whatsappPhone', propertyForm.whatsappPhone);
-      formData.append('displayPhone', propertyForm.displayPhone);
       
       propertyForm.amenities.forEach(amenity => {
         formData.append('amenities', amenity);
@@ -593,7 +590,7 @@ export default function PropertyPostPage() {
           {/* Contact Methods Metadata Details */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-4">
             <h3 className="text-sm font-bold text-slate-700 border-b pb-1">Contact Action Fields</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Contact Name</label>
                 <div className="relative rounded-xl shadow-sm">
@@ -624,24 +621,6 @@ export default function PropertyPostPage() {
                     value={propertyForm.whatsappPhone}
                     onChange={handleInputChange}
                     placeholder="971501234567"
-                    className="block w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Display Phone *</label>
-                <div className="relative rounded-xl shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <Phone size={16} />
-                  </div>
-                  <input
-                    type="text"
-                    required
-                    name="displayPhone"
-                    value={propertyForm.displayPhone}
-                    onChange={handleInputChange}
-                    placeholder="+971 50 123 4567"
                     className="block w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>

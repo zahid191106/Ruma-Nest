@@ -26,6 +26,7 @@ import {
   Sparkles, 
   Bus, 
   Users, 
+  Ruler,
   ArrowUpDown,
   Flame,
   Clock,
@@ -43,15 +44,26 @@ interface Property {
   location: string;
   address: string;
   price: number;
+  purpose: 'rent' | 'sell';
+  billingCycle?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  isAllInclusive?: boolean;
   imageUrl: string;
   images: string[];
   amenities: string[];
   isVerified: boolean;
-  occupancy: string;
-  nationalityPrefer: string;
+  idealOccupancy?: string;
   whatsappNumber: string;
+  contactName?: string;
   postedDate: string;
-  description: string;
+  overview: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  totalBedsInRoom?: number;
+  isEnsuite?: boolean;
+  floorNumber?: number;
+  sizeSqFt?: number;
+  buildingName?: string;
+  isActive?: boolean;
 }
 
 export default function App() {
@@ -59,8 +71,16 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
-  const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(60000);
+  const [selectedPurpose, setSelectedPurpose] = useState<string>('All');
+  const [minRent, setMinRent] = useState<number>(0);
+  const [maxRent, setMaxRent] = useState<number>(6000);
+  const [minSale, setMinSale] = useState<number>(0);
+  const [maxSale, setMaxSale] = useState<number>(10000000);
+  const [selectedBedrooms, setSelectedBedrooms] = useState<string>('All');
+  const [selectedBedsInRoom, setSelectedBedsInRoom] = useState<string>('All');
+  const [minSize, setMinSize] = useState<number>(0);
+  const [maxSize, setMaxSize] = useState<number>(2000);
+  const [selectedBathroomType, setSelectedBathroomType] = useState<string>('All');
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('default');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -73,7 +93,7 @@ export default function App() {
 
   // Lists of options
   const categories = ['Room', 'Studio', 'Bed Space', 'Apartment'];
-  const locations = [
+  const defaultLocations = [
     'Al Wahda', 
     'Mussafah', 
     'Khalifa City', 
@@ -84,7 +104,7 @@ export default function App() {
     'Hamdan Street',
     'Yas Island'
   ];
-  const amenitiesList = [
+  const defaultAmenities = [
     'WiFi Included', 
     'Fully Furnished', 
     'Separate Kitchen', 
@@ -139,7 +159,7 @@ export default function App() {
       // Fallback asset array logic
       const images: string[] = doc.images && doc.images.length > 0
         ? doc.images.map((img: any) => urlFor(img).width(1200).url())
-        : [doc.mainImage ? urlFor(doc.mainImage).width(1200).url() : '/images/action-image-1.avif'];
+        : ['/images/action-image-1.avif'];
 
       const primaryImage = images[0] || '/images/action-image-1.avif';
 
@@ -160,36 +180,56 @@ export default function App() {
         category,
         location: shortLocation || 'Unknown Area',
         address: doc.location || 'Address Details Unavailable',
-        price: doc.monthlyRent || 0,
+        price: doc.price || 0,
+        purpose: doc.purpose || 'rent',
+        billingCycle: doc.billingCycle || 'monthly',
+        isAllInclusive: !!doc.isAllInclusive,
         imageUrl: primaryImage,
         images,
         amenities: doc.includedAmenities || [],
         isVerified: !!doc.isVerified,
-        occupancy: doc.idealOccupancy || 'Any',
-        nationalityPrefer: doc.preference || 'Any Nationality',
+        idealOccupancy: doc.idealOccupancy || 'Any',
+        contactName: doc.contactDetails?.name || 'Property Owner',
         whatsappNumber: doc.contactDetails?.whatsappPhone || '',
         postedDate: doc._createdAt || new Date().toISOString(),
-        description: doc.overview || '',
+        overview: doc.overview || '',
+        bedrooms: doc.bedrooms,
+        bathrooms: doc.bathrooms,
+        totalBedsInRoom: doc.totalBedsInRoom,
+        isEnsuite: doc.isEnsuite,
+        floorNumber: doc.floorNumber,
+        sizeSqFt: doc.sizeSqFt,
+        buildingName: doc.buildingName,
+        isActive: !!doc.isActive,
       };
     };
 
     // Pulling strictly active status values
     client
       .fetch(
-        `*[_type == "property" && status == "active"]{
+        `*[_type == "property" && isActive == true && status == "active"]{
           _id, 
           title, 
-          mainImage,
           images, 
           isVerified, 
           propertyType, 
           location, 
-          monthlyRent, 
+          price,
+          purpose,
+          billingCycle,
+          isAllInclusive,
           overview, 
           idealOccupancy, 
-          preference, 
           includedAmenities, 
-          contactDetails, 
+          contactDetails,
+          bedrooms,
+          bathrooms,
+          totalBedsInRoom,
+          isEnsuite,
+          floorNumber,
+          sizeSqFt,
+          buildingName,
+          isActive,
           _createdAt
         }`
       )
@@ -221,8 +261,16 @@ export default function App() {
     setSearchQuery('');
     setSelectedCategory('All');
     setSelectedLocation('All');
-    setMinPrice(0);
-    setMaxPrice(6000);
+    setSelectedPurpose('All');
+    setMinRent(0);
+    setMaxRent(6000);
+    setMinSale(0);
+    setMaxSale(10000000);
+    setSelectedBedrooms('All');
+    setSelectedBedsInRoom('All');
+    setMinSize(0);
+    setMaxSize(2000);
+    setSelectedBathroomType('All');
     setSelectedAmenities([]);
     setSortBy('default');
   };
@@ -251,8 +299,44 @@ export default function App() {
       result = result.filter(item => item.location.toLowerCase() === selectedLocation.toLowerCase());
     }
 
-    // Price Bounds
-    result = result.filter(item => item.price >= minPrice && item.price <= maxPrice);
+    // Purpose Filter (Rent or Sell)
+    if (selectedPurpose !== 'All') {
+      result = result.filter(item => item.purpose === selectedPurpose);
+    }
+
+    // Price Bounds for rent and sale
+    result = result.filter(item => {
+      if (item.purpose === 'rent') {
+        return item.price >= minRent && item.price <= maxRent;
+      }
+      return item.price >= minSale && item.price <= maxSale;
+    });
+
+    // Bedroom filter
+    if (selectedBedrooms !== 'All') {
+      result = result.filter(item => item.bedrooms && item.bedrooms >= Number(selectedBedrooms));
+    }
+
+    // Beds-in-room filter
+    if (selectedBedsInRoom !== 'All') {
+      result = result.filter(item => item.totalBedsInRoom && item.totalBedsInRoom >= Number(selectedBedsInRoom));
+    }
+
+    // Size filter
+    result = result.filter(item => {
+      const size = item.sizeSqFt || 0;
+      return size >= minSize && size <= maxSize;
+    });
+
+    // Attached bathroom filter
+    if (selectedBathroomType !== 'All') {
+      result = result.filter(item => {
+        if (selectedBathroomType === 'ensuite') {
+          return item.isEnsuite === true;
+        }
+        return item.isEnsuite === false;
+      });
+    }
 
     // Selected Amenities Matrix Check
     if (selectedAmenities.length > 0) {
@@ -271,7 +355,34 @@ export default function App() {
     }
 
     return result;
-  }, [propertiesData, searchQuery, selectedCategory, selectedLocation, minPrice, maxPrice, selectedAmenities, sortBy]);
+  }, [propertiesData, searchQuery, selectedCategory, selectedLocation, selectedPurpose, minRent, maxRent, minSale, maxSale, selectedBedrooms, selectedBedsInRoom, minSize, maxSize, selectedBathroomType, selectedAmenities, sortBy]);
+
+  const amenitiesOptions = useMemo(() => {
+    const uniqueAmenityMap = new Map<string, string>();
+    propertiesData.flatMap(item => item.amenities || []).forEach((amenity) => {
+      const trimmed = amenity?.trim();
+      if (!trimmed) return;
+      const key = trimmed.toLowerCase();
+      if (!uniqueAmenityMap.has(key)) {
+        uniqueAmenityMap.set(key, trimmed);
+      }
+    });
+    const options = Array.from(uniqueAmenityMap.values());
+    return options.length > 0 ? options : defaultAmenities;
+  }, [propertiesData]);
+
+  const locationOptions = useMemo(() => {
+    const uniqueLocations = new Map<string, string>();
+    propertiesData.map(item => item.location?.trim() || '').forEach((location) => {
+      if (!location) return;
+      const key = location.toLowerCase();
+      if (!uniqueLocations.has(key)) {
+        uniqueLocations.set(key, location);
+      }
+    });
+    const options = Array.from(uniqueLocations.values());
+    return options.length > 0 ? options : defaultLocations;
+  }, [propertiesData]);
 
   // Open Property Modal Helper
   const openModal = (property: Property) => {
@@ -450,29 +561,16 @@ export default function App() {
                         {/* Category selection */}
                         <div className="space-y-2.5">
                             <label className="block text-xs sm:text-base font-black text-slate-500 uppercase tracking-widest">Property Category</label>
-                            <div className="flex flex-col gap-1.5">
-                                <button
-                                type="button"
-                                onClick={() => setSelectedCategory('All')}
-                                className={`w-full text-left px-3 py-2 rounded-xl text-xs sm:text-base font-extrabold flex items-center justify-between transition-all
-                                    ${selectedCategory === 'All' ? 'bg-pink-50 text-[#ff0066]' : 'text-slate-600 hover:bg-slate-50'}`}
-                                >
-                                <span>All Accommodations</span>
-                                {selectedCategory === 'All' && <Check className="w-4 h-4 text-[#ff0066]" />}
-                                </button>
+                            <select
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-extrabold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#ff0066]/10 focus:border-[#ff0066] cursor-pointer bg-white"
+                            >
+                                <option value="All">All Accommodations</option>
                                 {categories.map((cat) => (
-                                <button
-                                    key={cat}
-                                    type="button"
-                                    onClick={() => setSelectedCategory(cat)}
-                                    className={`w-full text-left px-3 py-2 rounded-xl text-xs sm:text-base font-extrabold flex items-center justify-between transition-all
-                                    ${selectedCategory === cat ? 'bg-pink-50 text-[#ff0066]' : 'text-slate-600 hover:bg-slate-50'}`}
-                                >
-                                    <span>{cat}</span>
-                                    {selectedCategory === cat && <Check className="w-4 h-4 text-[#ff0066]" />}
-                                </button>
+                                    <option key={cat} value={cat}>{cat}</option>
                                 ))}
-                            </div>
+                            </select>
                         </div>
 
                         {/* Location selector dropdown */}
@@ -484,16 +582,30 @@ export default function App() {
                                 className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-extrabold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#ff0066]/10 focus:border-[#ff0066] cursor-pointer bg-white"
                             >
                                 <option value="All">All Abu Dhabi Areas</option>
-                                {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+                                {locationOptions.map(loc => <option key={loc} value={loc}>{loc}</option>)}
                             </select>
                         </div>
 
-                        {/* Price limits (Min and Max range) */}
+                        {/* Purpose Filter (Rent or Sell) */}
+                        <div className="space-y-2.5">
+                            <label className="block text-xs sm:text-base font-black text-slate-500 uppercase tracking-widest">Listing Type</label>
+                            <select
+                                value={selectedPurpose}
+                                onChange={(e) => setSelectedPurpose(e.target.value)}
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-extrabold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#ff0066]/10 focus:border-[#ff0066] cursor-pointer bg-white"
+                            >
+                                <option value="All">All Types</option>
+                                <option value="rent">For Rent</option>
+                                <option value="sell">For Sale</option>
+                            </select>
+                        </div>
+
+                        {/* Rent Price limits */}
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <label className="text-xs sm:text-base font-black text-slate-500 uppercase tracking-wide">Monthly Rent (AED)</label>
+                                <label className="text-xs sm:text-base font-black text-slate-500 uppercase tracking-wide">Rent Price (AED)</label>
                                 <span className="text-sm font-black text-[#ff0066] bg-pink-50 px-2 py-0.5 rounded-md">
-                                    {minPrice} - {maxPrice}
+                                    {minRent} - {maxRent}
                                 </span>
                             </div>
                             <div className="space-y-2">
@@ -502,26 +614,26 @@ export default function App() {
                                     min="0" 
                                     max="6000" 
                                     step="100"
-                                    value={maxPrice}
-                                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                                    value={maxRent}
+                                    onChange={(e) => setMaxRent(Number(e.target.value))}
                                     className="w-full accent-[#ff0066] h-1.5 bg-slate-100 rounded-lg cursor-pointer"
                                 />
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
-                                        <label className="text-xs font-black text-slate-400 uppercase">Min price</label>
+                                        <label className="text-xs font-black text-slate-400 uppercase">Min Rent</label>
                                         <input 
                                         type="number"
-                                        value={minPrice}
-                                        onChange={(e) => setMinPrice(Number(e.target.value))}
+                                        value={minRent}
+                                        onChange={(e) => setMinRent(Number(e.target.value))}
                                         className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none"
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-xs font-black text-slate-400 uppercase">Max price</label>
+                                        <label className="text-xs font-black text-slate-400 uppercase">Max Rent</label>
                                         <input 
                                         type="number"
-                                        value={maxPrice}
-                                        onChange={(e) => setMaxPrice(Number(e.target.value))}
+                                        value={maxRent}
+                                        onChange={(e) => setMaxRent(Number(e.target.value))}
                                         className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none"
                                         />
                                     </div>
@@ -529,29 +641,142 @@ export default function App() {
                             </div>
                         </div>
 
-                        {/* Amenities filters Checklist */}
+                        {/* Sale Price limits */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs sm:text-base font-black text-slate-500 uppercase tracking-wide">Sale Price (AED)</label>
+                                <span className="text-sm font-black text-[#ff0066] bg-pink-50 px-2 py-0.5 rounded-md">
+                                    {minSale} - {maxSale}
+                                </span>
+                            </div>
+                            <div className="space-y-2">
+                                <input 
+                                    type="range" 
+                                    min="0" 
+                                    max="10000000" 
+                                    step="10000"
+                                    value={maxSale}
+                                    onChange={(e) => setMaxSale(Number(e.target.value))}
+                                    className="w-full accent-[#ff0066] h-1.5 bg-slate-100 rounded-lg cursor-pointer"
+                                />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="text-xs font-black text-slate-400 uppercase">Min Sale</label>
+                                        <input 
+                                        type="number"
+                                        value={minSale}
+                                        onChange={(e) => setMinSale(Number(e.target.value))}
+                                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-black text-slate-400 uppercase">Max Sale</label>
+                                        <input 
+                                        type="number"
+                                        value={maxSale}
+                                        onChange={(e) => setMaxSale(Number(e.target.value))}
+                                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Bedrooms and Beds filters */}
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Bedrooms</label>
+                                    <select
+                                        value={selectedBedrooms}
+                                        onChange={(e) => setSelectedBedrooms(e.target.value)}
+                                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none bg-white"
+                                    >
+                                        <option value="All">All</option>
+                                        {[1,2,3,4,5,6].map((n) => (
+                                          <option key={n} value={n}>{n}+ Beds</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Beds in Room</label>
+                                    <select
+                                        value={selectedBedsInRoom}
+                                        onChange={(e) => setSelectedBedsInRoom(e.target.value)}
+                                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none bg-white"
+                                    >
+                                        <option value="All">All</option>
+                                        {[1,2,3,4,5,6].map((n) => (
+                                          <option key={n} value={n}>{n}+ Beds</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Size and Attached Bathroom filters */}
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Min Size (Sq. Ft.)</label>
+                                    <input
+                                        type="number"
+                                        value={minSize}
+                                        onChange={(e) => setMinSize(Number(e.target.value))}
+                                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Max Size (Sq. Ft.)</label>
+                                    <input
+                                        type="number"
+                                        value={maxSize}
+                                        onChange={(e) => setMaxSize(Number(e.target.value))}
+                                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest">Bathroom Type</label>
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                    {['All','ensuite','shared'].map((type) => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => setSelectedBathroomType(type)}
+                                            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${selectedBathroomType === type ? 'bg-pink-50 text-[#ff0066] border-[#ff0066]' : 'bg-slate-50 border-slate-100 text-slate-600'}`}
+                                        >
+                                            {type === 'ensuite' ? 'Ensuite' : type === 'shared' ? 'Shared' : 'All'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Amenities filters */}
                         <div className="space-y-2.5">
-                            <label className="block text-xs sm:text-base font-black text-slate-500 uppercase tracking-wide">Amenities &amp; Features</label>
-                            <div className="flex flex-col gap-2">
-                                {amenitiesList.map((amenity) => {
-                                    const isChecked = selectedAmenities.includes(amenity);
+                            <label className="block text-xs sm:text-base font-black text-slate-500 uppercase tracking-wide">Amenities & Features</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {amenitiesOptions.map((amenity) => {
+                                    const isActive = selectedAmenities.includes(amenity);
                                     return (
                                         <button
-                                        key={amenity}
-                                        type="button"
-                                        onClick={() => toggleAmenity(amenity)}
-                                        className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-slate-600 text-left hover:text-[#ff0066] transition-colors"
+                                            key={amenity}
+                                            type="button"
+                                            onClick={() => toggleAmenity(amenity)}
+                                            className={`w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all border ${isActive ? 'bg-[#ff0066]/10 border-[#ff0066] text-[#ff0066]' : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900'}`}
                                         >
-                                        <div className={`w-4 h-4 rounded-md border flex items-center justify-center transition-all
-                                            ${isChecked ? 'bg-[#ff0066] border-[#ff0066] text-white' : 'border-slate-300 bg-white'}`}
-                                        >
-                                            {isChecked && <Check className="w-3 h-3 stroke-3" />}
-                                        </div>
-                                        <span>{amenity}</span>
+                                            <span className="flex items-center gap-2">
+                                                <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-white ${isActive ? 'bg-[#ff0066]' : 'bg-slate-200'}`}>
+                                                    {isActive ? <Check className="w-3 h-3" /> : ''}
+                                                </span>
+                                                <span>{amenity}</span>
+                                            </span>
                                         </button>
                                     );
                                 })}
                             </div>
+                            <p className="text-[11px] text-slate-400">Click to select multiple amenities. Active items appear in pink.</p>
                         </div>
 
                     </aside>
@@ -637,8 +862,25 @@ export default function App() {
                                                     <span className="text-base sm:text-lg font-black">
                                                         AED {prop.price.toLocaleString()}
                                                     </span>{' '}
-                                                    <span className="font-bold text-xs">/month</span>
+                                                    <span className="font-bold text-xs">
+                                                      {prop.purpose === 'sell' ? '(For Sale)' : `/${prop.billingCycle || 'month'}${prop.isAllInclusive ? ' (Inc.)' : ''}`}
+                                                    </span>
                                                 </p>
+                                            </div>
+
+                                            <div className="grid grid-cols-3 gap-3 pt-2 text-[11px] sm:text-xs text-slate-600 font-semibold">
+                                                <div className="flex items-center gap-2">
+                                                    <Home className="w-4 h-4 text-[#ff0066] shrink-0" />
+                                                    <span className="truncate">{prop.bedrooms ?? '—'} Rooms</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Bed className="w-4 h-4 text-[#ff0066] shrink-0" />
+                                                    <span className="truncate">{prop.totalBedsInRoom ?? '—'} Beds</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Ruler className="w-4 h-4 text-[#ff0066] shrink-0" />
+                                                    <span className="truncate">{prop.sizeSqFt ? `${prop.sizeSqFt} Sq Ft` : '—'} Area</span>
+                                                </div>
                                             </div>
 
                                         {/* Display 2 active amenities for preview */}
@@ -748,16 +990,47 @@ export default function App() {
                                     className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-extrabold text-slate-700 bg-white focus:outline-none"
                                 >
                                     <option value="All">All Areas</option>
-                                    {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+                                    {locationOptions.map(loc => <option key={loc} value={loc}>{loc}</option>)}
                                 </select>
                             </div>
 
-                            {/* Price limits range */}
+                            {/* Listing Type (Rent or Sell) */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-black text-slate-500 uppercase tracking-widest">Listing Type</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedPurpose('All')}
+                                        className={`px-3 py-2 rounded-xl text-sm font-bold transition-all border
+                                        ${selectedPurpose === 'All' ? 'bg-pink-50 text-[#ff0066] border-[#ff0066]' : 'bg-slate-50 border-slate-100 text-slate-600'}`}
+                                    >
+                                        All
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedPurpose('rent')}
+                                        className={`px-3 py-2 rounded-xl text-sm font-bold transition-all border
+                                        ${selectedPurpose === 'rent' ? 'bg-pink-50 text-[#ff0066] border-[#ff0066]' : 'bg-slate-50 border-slate-100 text-slate-600'}`}
+                                    >
+                                        Rent
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedPurpose('sell')}
+                                        className={`px-3 py-2 rounded-xl text-sm font-bold transition-all border
+                                        ${selectedPurpose === 'sell' ? 'bg-pink-50 text-[#ff0066] border-[#ff0066]' : 'bg-slate-50 border-slate-100 text-slate-600'}`}
+                                    >
+                                        Sale
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Rent Price limits */}
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <label className="text-sm font-black text-slate-500 uppercase tracking-widest">Monthly Rent</label>
+                                    <label className="text-sm font-black text-slate-500 uppercase tracking-widest">Rent Price</label>
                                     <span className="text-sm font-black text-[#ff0066] bg-pink-50 px-2.5 py-0.5 rounded-md">
-                                        AED {maxPrice} max
+                                        AED {minRent} - {maxRent}
                                     </span>
                                 </div>
                                 <input 
@@ -765,17 +1038,143 @@ export default function App() {
                                     min="0" 
                                     max="6000" 
                                     step="100"
-                                    value={maxPrice}
-                                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                                    value={maxRent}
+                                    onChange={(e) => setMaxRent(Number(e.target.value))}
                                     className="w-full accent-[#ff0066] h-1.5 bg-slate-100 rounded-lg cursor-pointer"
                                 />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Min Rent</label>
+                                    <input
+                                        type="number"
+                                        value={minRent}
+                                        onChange={(e) => setMinRent(Number(e.target.value))}
+                                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Max Rent</label>
+                                    <input
+                                        type="number"
+                                        value={maxRent}
+                                        onChange={(e) => setMaxRent(Number(e.target.value))}
+                                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Sale Price limits */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm font-black text-slate-500 uppercase tracking-widest">Sale Price</label>
+                                    <span className="text-sm font-black text-[#ff0066] bg-pink-50 px-2.5 py-0.5 rounded-md">
+                                        AED {minSale} - {maxSale}
+                                    </span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    min="0" 
+                                    max="10000000" 
+                                    step="10000"
+                                    value={maxSale}
+                                    onChange={(e) => setMaxSale(Number(e.target.value))}
+                                    className="w-full accent-[#ff0066] h-1.5 bg-slate-100 rounded-lg cursor-pointer"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Min Sale</label>
+                                    <input
+                                        type="number"
+                                        value={minSale}
+                                        onChange={(e) => setMinSale(Number(e.target.value))}
+                                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Max Sale</label>
+                                    <input
+                                        type="number"
+                                        value={maxSale}
+                                        onChange={(e) => setMaxSale(Number(e.target.value))}
+                                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Bedrooms / Beds / Size / Bathroom */}
+                            <div className="space-y-3 pt-3 border-t border-slate-100">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Bedrooms</label>
+                                        <select
+                                            value={selectedBedrooms}
+                                            onChange={(e) => setSelectedBedrooms(e.target.value)}
+                                            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 bg-white focus:outline-none"
+                                        >
+                                            <option value="All">All</option>
+                                            {[1,2,3,4,5,6].map(n => (
+                                                <option key={n} value={n}>{n}+ Beds</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Beds in Room</label>
+                                        <select
+                                            value={selectedBedsInRoom}
+                                            onChange={(e) => setSelectedBedsInRoom(e.target.value)}
+                                            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 bg-white focus:outline-none"
+                                        >
+                                            <option value="All">All</option>
+                                            {[1,2,3,4,5,6].map(n => (
+                                                <option key={n} value={n}>{n}+ Beds</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Min Size</label>
+                                        <input
+                                            type="number"
+                                            value={minSize}
+                                            onChange={(e) => setMinSize(Number(e.target.value))}
+                                            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Max Size</label>
+                                        <input
+                                            type="number"
+                                            value={maxSize}
+                                            onChange={(e) => setMaxSize(Number(e.target.value))}
+                                            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest">Bathroom Type</label>
+                                    <div className="grid grid-cols-3 gap-2 mt-2">
+                                        {['All','ensuite','shared'].map((type) => (
+                                            <button
+                                                key={type}
+                                                type="button"
+                                                onClick={() => setSelectedBathroomType(type)}
+                                                className={`px-3 py-2 rounded-xl text-sm font-bold transition-all border ${selectedBathroomType === type ? 'bg-pink-50 text-[#ff0066] border-[#ff0066]' : 'bg-slate-50 border-slate-100 text-slate-600'}`}
+                                            >
+                                                {type === 'ensuite' ? 'Ensuite' : type === 'shared' ? 'Shared' : 'All'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Amenities list checklist */}
                             <div className="space-y-2.5">
                                 <label className="block text-sm font-black text-slate-500 uppercase tracking-widest">Amenities</label>
                                 <div className="grid grid-cols-2 gap-2">
-                                    {amenitiesList.map((amenity) => {
+                                    {amenitiesOptions.map((amenity) => {
                                         const isChecked = selectedAmenities.includes(amenity);
                                         return (
                                         <button
@@ -821,7 +1220,7 @@ export default function App() {
                 ========================================== */}
             {selectedProperty && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-4xl shadow-2xl border border-slate-100 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-200 flex flex-col md:flex-row">
+                    <div className="bg-white rounded-4xl shadow-2xl border border-slate-100 w-full max-w-7xl max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-200 flex flex-col md:flex-row">
                         
                         {/* Left Box: Gallery / Visual assets */}
                         <div className="w-full md:w-1/2 bg-slate-900/5 p-4 flex flex-col justify-between md:sticky md:top-0 h-full min-h-75 md:min-h-120">
@@ -892,7 +1291,9 @@ export default function App() {
 
                             <div className="flex items-baseline gap-1 bg-slate-50 p-3 rounded-2xl border border-slate-100">
                                 <span className="text-2xl font-black text-[#0a192f]">AED {selectedProperty.price.toLocaleString()}</span>
-                                <span className="text-slate-500 text-sm font-bold">/ month (All-Inclusive)</span>
+                                <span className="text-slate-500 text-sm font-bold">
+                                  {selectedProperty.purpose === 'sell' ? '(For Sale)' : `/ ${selectedProperty.billingCycle || 'month'}${selectedProperty.isAllInclusive ? ' (All-Inclusive DEWA & WiFi)' : ''}`}
+                                </span>
                             </div>
                         </div>
 
@@ -900,20 +1301,60 @@ export default function App() {
                         <div className="space-y-2">
                             <p className="text-sm sm:text-base font-black text-slate-400 uppercase tracking-widest">Overview Details</p>
                             <p className="text-xs sm:text-base text-slate-600 leading-relaxed font-semibold">
-                                {selectedProperty.description}
+                                {selectedProperty.overview}
                             </p>
                         </div>
 
-                        {/* Key preferences / specifications */}
-                        <div className="grid grid-cols-2 gap-3.5 pt-4 border-t border-slate-100">
-                            <div>
-                                <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Ideal Occupancy</p>
-                                <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.occupancy}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Preference</p>
-                                <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.nationalityPrefer}</p>
-                            </div>
+                        {/* Property Specifications Grid */}
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                            {selectedProperty.bedrooms && (
+                              <div>
+                                  <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Bedrooms</p>
+                                  <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.bedrooms} BHK</p>
+                              </div>
+                            )}
+                            {selectedProperty.bathrooms && (
+                              <div>
+                                  <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Bathrooms</p>
+                                  <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.bathrooms}</p>
+                              </div>
+                            )}
+                            {selectedProperty.totalBedsInRoom && (
+                              <div>
+                                  <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Beds in Room</p>
+                                  <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.totalBedsInRoom}</p>
+                              </div>
+                            )}
+                            {selectedProperty.isEnsuite !== undefined && (
+                              <div>
+                                  <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Bathroom</p>
+                                  <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.isEnsuite ? 'Ensuite' : 'Shared'}</p>
+                              </div>
+                            )}
+                            {selectedProperty.sizeSqFt && (
+                              <div>
+                                  <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Size</p>
+                                  <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.sizeSqFt} Sq. Ft.</p>
+                              </div>
+                            )}
+                            {selectedProperty.floorNumber && (
+                              <div>
+                                  <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Floor</p>
+                                  <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">Floor {selectedProperty.floorNumber}</p>
+                              </div>
+                            )}
+                            {selectedProperty.buildingName && (
+                              <div className="col-span-2">
+                                  <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Building</p>
+                                  <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.buildingName}</p>
+                              </div>
+                            )}
+                            {selectedProperty.idealOccupancy && (
+                              <div className="col-span-2">
+                                  <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Ideal Occupancy</p>
+                                  <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.idealOccupancy}</p>
+                              </div>
+                            )}
                         </div>
 
                         {/* Amenities specifications Checklist */}
@@ -945,7 +1386,7 @@ export default function App() {
                             </a>
 
                             <button
-                                onClick={() => alert(`Connecting securely with ${selectedProperty.occupancy} manager at +${selectedProperty.whatsappNumber}`)}
+                                onClick={() => alert(`Connecting with ${selectedProperty.contactName} at +${selectedProperty.whatsappNumber}`)}
                                 className="py-3.5 px-6 rounded-2xl border-2 border-[#0a192f] text-[#0a192f] hover:bg-slate-50 active:scale-98 text-xs sm:text-sm font-black uppercase tracking-wider transition-all"
                             >
                                 Show Phone Number
