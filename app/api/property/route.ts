@@ -45,12 +45,12 @@ export async function POST(request: Request) {
     const idealOccupancy = formData.get('idealOccupancy') as string;
     
     // Quantitative parameters
-    const bedrooms = formData.get('bedrooms') ? Number(formData.get('bedrooms')) : undefined;
-    const totalBedsInRoom = formData.get('totalBedsInRoom') ? Number(formData.get('totalBedsInRoom')) : undefined;
-    const bathrooms = formData.get('bathrooms') ? Number(formData.get('bathrooms')) : undefined;
-    const isEnsuite = formData.get('isEnsuite') === 'true';
-    const floorNumber = formData.get('floorNumber') ? Number(formData.get('floorNumber')) : undefined;
-    const sizeSqFt = formData.get('sizeSqFt') ? Number(formData.get('sizeSqFt')) : undefined;
+    // const bedrooms = formData.get('bedrooms') ? Number(formData.get('bedrooms')) : undefined;
+    // const totalBedsInRoom = formData.get('totalBedsInRoom') ? Number(formData.get('totalBedsInRoom')) : undefined;
+    // const bathrooms = formData.get('bathrooms') ? Number(formData.get('bathrooms')) : undefined;
+    // const isEnsuite = formData.get('isEnsuite') === 'true';
+    // const floorNumber = formData.get('floorNumber') ? Number(formData.get('floorNumber')) : undefined;
+    // const sizeSqFt = formData.get('sizeSqFt') ? Number(formData.get('sizeSqFt')) : undefined;
 
     // Contact Object fields
     const contactName = formData.get('contactName') as string;
@@ -113,12 +113,12 @@ export async function POST(request: Request) {
       isAllInclusive: purpose === 'sell' ? false : isAllInclusive,
       overview,
       idealOccupancy,
-      bedrooms,
-      totalBedsInRoom,
-      bathrooms,
-      isEnsuite,
-      floorNumber,
-      sizeSqFt,
+      // bedrooms,
+      // totalBedsInRoom,
+      // bathrooms,
+      // isEnsuite,
+      // floorNumber,
+      // sizeSqFt,
       includedAmenities: amenities,
       contactDetails: {
         name: contactName,

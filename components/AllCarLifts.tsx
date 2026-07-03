@@ -20,6 +20,14 @@ import {
   RefreshCw,
   MessageCircle
 } from 'lucide-react';
+import { 
+  SiFacebook, 
+  SiX, 
+  SiInstagram, 
+  SiWhatsapp,
+  SiTiktok,
+  SiYoutube 
+} from '@icons-pack/react-simple-icons';
 
 // Read-only public Sanity client for client-side fetching
 const client = createClient({
@@ -187,25 +195,25 @@ export default function CarLiftDirectoryPage() {
         <img 
           src="/images/car-slide-1.webp" 
           alt="Car Lift Prompt" 
-          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform z-20' 
           style={{ animationDelay: '0s' }} 
         />
         <img 
           src="/images/car-slide-2.webp" 
           alt="Car Lift Prompt" 
-          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform z-20' 
           style={{ animationDelay: '4s' }} 
         />
         <img 
           src="/images/car-slide-3.webp" 
           alt="Car Lift Prompt" 
-          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform z-20' 
           style={{ animationDelay: '8s' }} 
         />
         <img 
           src="/images/car-slide-4.webp" 
           alt="Car Lift Prompt" 
-          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform' 
+          className='absolute -bottom-28 sm:-bottom-12 w-200 h-87.5 object-contain animate-car-move will-change-transform z-20' 
           style={{ animationDelay: '12s' }} 
         />
         {/* Deep dark radiant light overlay matching reference */}
@@ -221,7 +229,7 @@ export default function CarLiftDirectoryPage() {
                 Active Abu Dhabi Routes Live Now
               </div>
               
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight uppercase">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl text-slate-700 font-black tracking-tight leading-tight uppercase">
                 Save Time & Money With <br />
                 <span className="text-pink-500">RumaNest Car-Lift</span>
               </h1>
@@ -252,15 +260,15 @@ export default function CarLiftDirectoryPage() {
               {/* Counter Stats Grid Row */}
               <div className="grid grid-cols-3 gap-4 pt-6 max-w-md mx-auto md:mx-0 border-t border-slate-900/60">
                 <div>
-                  <p className="text-lg sm:text-4xl font-black text-white">5K+</p>
+                  <p className="text-lg sm:text-4xl font-black text-slate-700">5K+</p>
                   <p className="text-xs sm:text-sm text-slate-700 font-medium">Routes Active</p>
                 </div>
                 <div>
-                  <p className="text-lg sm:text-4xl font-black text-white">100%</p>
+                  <p className="text-lg sm:text-4xl font-black text-slate-700">100%</p>
                   <p className="text-xs sm:text-sm text-slate-700 font-medium">Verified Users</p>
                 </div>
                 <div>
-                  <p className="text-lg sm:text-4xl font-black text-white">AED 0</p>
+                  <p className="text-lg sm:text-4xl font-black text-slate-700">AED 0</p>
                   <p className="text-xs sm:text-sm text-slate-700 font-medium">Commission Fee</p>
                 </div>
               </div>
@@ -456,7 +464,7 @@ export default function CarLiftDirectoryPage() {
                         rel="noreferrer" 
                         className="h-9 px-4 bg-[#00c767] hover:bg-[#00b05b] text-white rounded-xl flex items-center gap-1.5 text-sm font-black uppercase tracking-wider transition-colors shrink-0 shadow-xs shadow-emerald-500/10"
                       >
-                        <MessageCircle className="w-4 h-4 fill-white text-transparent" />
+                        <SiWhatsapp className="w-4 h-4 fill-white text-transparent" />
                         <span>WhatsApp</span>
                       </a>
                     </div>
@@ -528,20 +536,20 @@ export default function CarLiftDirectoryPage() {
                 <input type="datetime-local" required value={form.requestedTime} onChange={(e) => setForm({ ...form, requestedTime: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-base outline-none focus:border-pink-500" />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+              <div className="grid gap-3">
+                {/* <div>
                   <label className="block text-sm font-black uppercase text-slate-500 mb-1">Preferred Car</label>
                   <input type="text" placeholder="e.g. Sedan (Toyota Camry)" value={form.preferredCar} onChange={(e) => setForm({ ...form, preferredCar: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-base outline-none focus:border-pink-500" />
-                </div>
+                </div> */}
                 <div>
-                  <label className="block text-sm font-black uppercase text-slate-500 mb-1">Offer Budget (AED/mo)</label>
+                  <label className="block text-sm font-black uppercase text-slate-500 mb-1">Offer Budget (AED)</label>
                   <input type="number" required placeholder="e.g. 250" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-base outline-none focus:border-pink-500" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-black uppercase text-slate-500 mb-1">Commute Scope Purpose</label>
-                <input type="text" placeholder="e.g. Daily Office Commute" value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-base outline-none focus:border-pink-500" />
+                <label className="block text-sm font-black uppercase text-slate-500 mb-1">Scope Purpose</label>
+                <input type="text" placeholder="e.g. Shifting a sofa & 3 boxes" value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-base outline-none focus:border-pink-500" />
               </div>
 
               {!isRegisteredUser ? (

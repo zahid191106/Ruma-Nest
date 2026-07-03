@@ -21,6 +21,14 @@ import {
   ArrowUpDown,
   Image as ImageIcon
 } from 'lucide-react';
+import { 
+  SiFacebook, 
+  SiX, 
+  SiInstagram, 
+  SiWhatsapp,
+  SiTiktok,
+  SiYoutube 
+} from '@icons-pack/react-simple-icons';
 
 // Type declarations for Roommate / Tenant State
 interface TenantRequirementForm {
@@ -376,7 +384,7 @@ export default function App() {
 
                   <div className="flex flex-col items-center text-center gap-2">
                     <div className="lg:w-20 lg:h-20 xl:w-32 xl:h-32 bg-pink-50 rounded-full flex items-center justify-center text-[#ff0066] shadow-inner">
-                      <MessageSquare className="lg:w-10 lg:h-10 xl:w-16 xl:h-16" />
+                      <SiWhatsapp className="lg:w-10 lg:h-10 xl:w-16 xl:h-16" />
                     </div>
                     <div>
                       <h4 className="text-sm font-extrabold text-slate-800">Instant Leads</h4>
@@ -437,7 +445,7 @@ export default function App() {
 
                   <div className="flex flex-col items-center text-center gap-2">
                     <div className="lg:w-20 lg:h-20 xl:w-32 xl:h-32 bg-slate-800 rounded-full flex items-center justify-center text-emerald-400 shadow-inner">
-                      <MessageSquare className="lg:w-10 lg:h-10 xl:w-16 xl:h-16" />
+                      <SiWhatsapp className="lg:w-10 lg:h-10 xl:w-16 xl:h-16" />
                     </div>
                     <div>
                       <h4 className="lg:sm xl:text-base font-extrabold text-white">WhatsApp Leads</h4>

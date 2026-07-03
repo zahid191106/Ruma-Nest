@@ -27,6 +27,14 @@ import {
   Check,
   Loader2
 } from 'lucide-react';
+import { 
+  SiFacebook, 
+  SiX, 
+  SiInstagram, 
+  SiWhatsapp,
+  SiTiktok,
+  SiYoutube 
+} from '@icons-pack/react-simple-icons';
 
 interface Suggestion {
     formatted: string;
@@ -218,7 +226,7 @@ export default function HomePage() {
                             {/* Pill 2: Direct Contact WhatsApp */}
                             <a href="https://wa.me/971501234567" target="_blank" rel="noreferrer"
                                 className="bg-[#ff1d6c] hover:bg-pink-600 text-white p-4 sm:p-5 rounded-2xl flex flex-1 items-center gap-3 shadow-lg hover:scale-[1.02] transition-transform duration-200 min-w-55">
-                                <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10 text-white shrink-0" />
+                                <SiWhatsapp className="w-8 h-8 sm:w-10 sm:h-10 text-white shrink-0" />
                                 <div className="leading-tight">
                                     <h4 className="text-sm font-extrabold text-white">Direct Contact</h4>
                                     <p className="text-xs sm:text-sm text-pink-100">Chat on WhatsApp</p>

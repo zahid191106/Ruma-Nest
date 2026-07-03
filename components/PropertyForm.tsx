@@ -74,15 +74,6 @@ export default function PropertyPostPage() {
     overview: ''
   });
 
-  // Autocomplete States (Geoapify Dubai Constraint)
-  const [propertyQuery, setPropertyQuery] = useState('');
-  const [propertySuggestions, setPropertySuggestions] = useState<Suggestion[]>([]);
-  const [propertyIsLoading, setPropertyIsLoading] = useState(false);
-  const [propertyIsLocationOpen, setPropertyIsLocationOpen] = useState(false);
-  const propertyDebounce = useRef<NodeJS.Timeout | null>(null);
-  const [propertySelectedAt, setPropertySelectedAt] = useState<number | null>(null);
-  const dubaiBoundingBox = "54.85,24.75,55.55,25.35";
-
   // --- Change Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -123,55 +114,6 @@ export default function PropertyPostPage() {
     }));
   };
 
-  // --- Location Selection Handlers ---
-  const selectPropertyLocation = (loc: string) => {
-    setPropertyForm(prev => ({ ...prev, location: loc }));
-    setPropertyQuery(loc);
-    setPropertyIsLocationOpen(false);
-    setPropertySuggestions([]);
-    setPropertySelectedAt(Date.now());
-  };
-
-  const clearPropertyInput = () => {
-    setPropertyForm(prev => ({ ...prev, location: '' }));
-    setPropertyQuery('');
-    setPropertySuggestions([]);
-    setPropertyIsLocationOpen(false);
-  };
-
-  // --- Geoapify Autocomplete Pipeline ---
-  useEffect(() => {
-    if (!propertyQuery || propertyQuery.length < 3) {
-      setPropertySuggestions([]);
-      return;
-    }
-    if (propertySelectedAt && Date.now() - propertySelectedAt < 500) return;
-    if (propertyDebounce.current) clearTimeout(propertyDebounce.current);
-
-    propertyDebounce.current = setTimeout(async () => {
-      setPropertyIsLoading(true);
-      try {
-        const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
-        const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(propertyQuery)}&filter=rect:${dubaiBoundingBox}&bias=countrycode:ae&limit=5&apiKey=${apiKey}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.features) {
-          const mapped = data.features.map((f: any) => ({ formatted: f.properties.formatted, place_id: f.properties.place_id }));
-          setPropertySuggestions(mapped);
-          setPropertyIsLocationOpen(true);
-        }
-      } catch (err) {
-        console.error('Error fetching property locations:', err);
-      } finally {
-        setPropertyIsLoading(false);
-      }
-    }, 350);
-
-    return () => {
-      if (propertyDebounce.current) clearTimeout(propertyDebounce.current);
-    };
-  }, [propertyQuery]);
-
   // --- Submission Handler ---
   const handlePropertySubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -197,12 +139,12 @@ export default function PropertyPostPage() {
       formData.append('price', propertyForm.price);
       formData.append('billingCycle', propertyForm.purpose === 'sell' ? '' : propertyForm.billingCycle);
       formData.append('isAllInclusive', String(propertyForm.purpose === 'sell' ? false : propertyForm.isAllInclusive));
-      formData.append('bedrooms', String(propertyForm.bedrooms));
-      formData.append('totalBedsInRoom', String(propertyForm.totalBedsInRoom));
-      formData.append('bathrooms', String(propertyForm.bathrooms));
-      formData.append('isEnsuite', String(propertyForm.isEnsuite));
-      formData.append('floorNumber', propertyForm.floorNumber);
-      formData.append('sizeSqFt', propertyForm.sizeSqFt);
+      // formData.append('bedrooms', String(propertyForm.bedrooms));
+      // formData.append('totalBedsInRoom', String(propertyForm.totalBedsInRoom));
+      // formData.append('bathrooms', String(propertyForm.bathrooms));
+      // formData.append('isEnsuite', String(propertyForm.isEnsuite));
+      // formData.append('floorNumber', propertyForm.floorNumber);
+      // formData.append('sizeSqFt', propertyForm.sizeSqFt);
       formData.append('idealOccupancy', propertyForm.idealOccupancy);
       formData.append('overview', propertyForm.overview);
       
@@ -314,51 +256,22 @@ export default function PropertyPostPage() {
               </div>
             </div>
 
-            {/* Dubai Location Address Autocomplete */}
+            {/* Location Address Autocomplete */}
             <div className="relative">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Dubai Location Address *</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Location Address *</label>
               <div className="relative rounded-xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <MapPin size={18} />
                 </div>
                 <input
                   type="text"
-                  required
-                  placeholder="Type 3+ letters to search Dubai..."
-                  value={propertyQuery}
-                  onChange={(e) => {
-                    setPropertyQuery(e.target.value);
-                    if (!e.target.value) clearPropertyInput();
-                  }}
-                  className="block w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+                  name="location"
+                  value={propertyForm.location}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Marina Gate"
+                  className="block w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
                 />
-                {propertyQuery && (
-                  <button type="button" onClick={clearPropertyInput} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">
-                    <X size={16} />
-                  </button>
-                )}
               </div>
-
-              {propertyIsLocationOpen && propertySuggestions.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
-                  {propertySuggestions.map((suggestion) => (
-                    <button
-                      key={suggestion.place_id}
-                      type="button"
-                      onClick={() => selectPropertyLocation(suggestion.formatted)}
-                      className="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 border-b border-slate-100 last:border-0 text-slate-700 transition flex items-start gap-2"
-                    >
-                      <MapPin size={16} className="mt-0.5 text-slate-400 shrink-0" />
-                      <span>{suggestion.formatted}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {propertyIsLoading && (
-                <div className="absolute right-3 top-9.5 text-slate-400">
-                  <Loader2 size={16} className="animate-spin" />
-                </div>
-              )}
             </div>
           </div>
 
@@ -454,7 +367,7 @@ export default function PropertyPostPage() {
           </div>
 
           {/* Specifications Panel */}
-          <div>
+          {/* <div>
             <h3 className="text-sm font-bold text-slate-700 border-b pb-1 mb-3">Room Specifications</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
@@ -533,25 +446,37 @@ export default function PropertyPostPage() {
                 </label>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Amenities System */}
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Property Amenities (Press Enter to Add)</label>
-            <input
-              type="text"
-              value={amenityInput}
-              onChange={(e) => setAmenityInput(e.target.value)}
-              onKeyDown={handleAddAmenity}
-              placeholder="Type e.g., Balcony, Chiller Free, Gym and hit Enter"
-              className="block w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={amenityInput}
+                onChange={(e) => setAmenityInput(e.target.value)}
+                onKeyDown={handleAddAmenity}
+                placeholder="Type e.g., Balcony, Chiller Free, Gym and hit Enter"
+                className="block w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+              <button
+                  type="button"
+                  onClick={() => {
+                    const fakeEvent = { key: 'Enter', preventDefault: () => {} } as React.KeyboardEvent<HTMLInputElement>;
+                    handleAddAmenity(fakeEvent);
+                  }}
+                  className="absolute right-2 px-5 py-2 rounded-lg cursor-pointer bg-green-100 hover:bg-green-200 text-green-700 font-bold text-sm transition-colors"
+                >
+                  + Add
+              </button>
+            </div>
             {propertyForm.amenities.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-3 bg-slate-50 p-2 rounded-xl border border-dashed border-slate-200">
                 {propertyForm.amenities.map((amenity, idx) => (
                   <span key={idx} className="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-semibold">
                     {amenity}
-                    <button type="button" onClick={() => handleRemoveAmenity(idx)} className="text-emerald-500">
+                    <button type="button" onClick={() => handleRemoveAmenity(idx)} className="text-emerald-500 cursor-pointer">
                       <X size={14} />
                     </button>
                   </span>

@@ -35,6 +35,14 @@ import {
   HelpCircle,
   Building
 } from 'lucide-react';
+import { 
+  SiFacebook, 
+  SiX, 
+  SiInstagram, 
+  SiWhatsapp,
+  SiTiktok,
+  SiYoutube 
+} from '@icons-pack/react-simple-icons';
 
 // Interfaces for full TypeScript safety
 interface Property {
@@ -64,6 +72,7 @@ interface Property {
   sizeSqFt?: number;
   buildingName?: string;
   isActive?: boolean;
+  status?: string;
 }
 
 export default function App() {
@@ -73,7 +82,7 @@ export default function App() {
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [selectedPurpose, setSelectedPurpose] = useState<string>('All');
   const [minRent, setMinRent] = useState<number>(0);
-  const [maxRent, setMaxRent] = useState<number>(6000);
+  const [maxRent, setMaxRent] = useState<number>(60000);
   const [minSale, setMinSale] = useState<number>(0);
   const [maxSale, setMaxSale] = useState<number>(10000000);
   const [selectedBedrooms, setSelectedBedrooms] = useState<string>('All');
@@ -105,15 +114,27 @@ export default function App() {
     'Yas Island'
   ];
   const defaultAmenities = [
-    'WiFi Included', 
-    'Fully Furnished', 
-    'Separate Kitchen', 
+    'WiFi', 
+    'Furnished', 
+    'Kitchen', 
     'Gym & Pool', 
     'Neat & Clean', 
     'Near Bus Stop',
     'Family Allowed',
     'AC Included'
   ];
+
+  const normalizeAmenityKey = (amenity: string) => {
+    return amenity
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/\b(fully furnished|fully furnished room|furnished room)\b/g, 'furnished')
+      .replace(/\b(included|available|provided|with|the|and|plus|space|room|area)\b/g, '')
+      .replace(/[^a-z0-9 ]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -201,6 +222,7 @@ export default function App() {
         sizeSqFt: doc.sizeSqFt,
         buildingName: doc.buildingName,
         isActive: !!doc.isActive,
+        status: doc.status,
       };
     };
 
@@ -230,6 +252,7 @@ export default function App() {
           sizeSqFt,
           buildingName,
           isActive,
+          status,
           _createdAt
         }`
       )
@@ -263,7 +286,7 @@ export default function App() {
     setSelectedLocation('All');
     setSelectedPurpose('All');
     setMinRent(0);
-    setMaxRent(6000);
+    setMaxRent(60000);
     setMinSale(0);
     setMaxSale(10000000);
     setSelectedBedrooms('All');
@@ -341,7 +364,10 @@ export default function App() {
     // Selected Amenities Matrix Check
     if (selectedAmenities.length > 0) {
       result = result.filter(item => 
-        selectedAmenities.every(amenity => item.amenities.includes(amenity))
+        selectedAmenities.every((selectedAmenity) => {
+          const selectedKey = normalizeAmenityKey(selectedAmenity);
+          return item.amenities.some((itemAmenity) => normalizeAmenityKey(itemAmenity) === selectedKey);
+        })
       );
     }
 
@@ -358,18 +384,9 @@ export default function App() {
   }, [propertiesData, searchQuery, selectedCategory, selectedLocation, selectedPurpose, minRent, maxRent, minSale, maxSale, selectedBedrooms, selectedBedsInRoom, minSize, maxSize, selectedBathroomType, selectedAmenities, sortBy]);
 
   const amenitiesOptions = useMemo(() => {
-    const uniqueAmenityMap = new Map<string, string>();
-    propertiesData.flatMap(item => item.amenities || []).forEach((amenity) => {
-      const trimmed = amenity?.trim();
-      if (!trimmed) return;
-      const key = trimmed.toLowerCase();
-      if (!uniqueAmenityMap.has(key)) {
-        uniqueAmenityMap.set(key, trimmed);
-      }
-    });
-    const options = Array.from(uniqueAmenityMap.values());
-    return options.length > 0 ? options : defaultAmenities;
-  }, [propertiesData]);
+    // Use only the hardcoded amenities list instead of extracting values from Sanity
+    return defaultAmenities;
+  }, []);
 
   const locationOptions = useMemo(() => {
     const uniqueLocations = new Map<string, string>();
@@ -683,7 +700,7 @@ export default function App() {
                         </div>
 
                         {/* Bedrooms and Beds filters */}
-                        <div className="space-y-3">
+                        {/* <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
                                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Bedrooms</label>
@@ -712,10 +729,10 @@ export default function App() {
                                     </select>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Size and Attached Bathroom filters */}
-                        <div className="space-y-3">
+                        {/* <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
                                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Min Size (Sq. Ft.)</label>
@@ -751,7 +768,7 @@ export default function App() {
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Amenities filters */}
                         <div className="space-y-2.5">
@@ -831,15 +848,15 @@ export default function App() {
                                             </span>
 
                                             {/* Top Overlay Badge for Verified items */}
-                                            {prop.isVerified === true ? (
+                                            {/* {prop.status === "active" ? (
                                                 <span className="absolute top-3 left-3 bg-emerald-500 text-white text-sm font-black tracking-wider px-2.5 py-1 rounded-md shadow-sm">
-                                                    VERIFIED
+                                                    Active
                                                 </span>
                                             ) : 
                                                 <span className="absolute top-3 left-3 bg-slate-100 text-slate-700 border-slate-200 text-sm font-black tracking-wider px-2.5 py-1 rounded-md shadow-sm">
-                                                    NOT VERIFIED
+                                                    Rented
                                                 </span>
-                                            }
+                                            } */}
                                         </div>
 
                                         {/* Meta Info & Features */}
@@ -868,7 +885,7 @@ export default function App() {
                                                 </p>
                                             </div>
 
-                                            <div className="grid grid-cols-3 gap-3 pt-2 text-[11px] sm:text-xs text-slate-600 font-semibold">
+                                            {/* <div className="grid grid-cols-3 gap-3 pt-2 text-[11px] sm:text-xs text-slate-600 font-semibold">
                                                 <div className="flex items-center gap-2">
                                                     <Home className="w-4 h-4 text-[#ff0066] shrink-0" />
                                                     <span className="truncate">{prop.bedrooms ?? '—'} Rooms</span>
@@ -881,7 +898,7 @@ export default function App() {
                                                     <Ruler className="w-4 h-4 text-[#ff0066] shrink-0" />
                                                     <span className="truncate">{prop.sizeSqFt ? `${prop.sizeSqFt} Sq Ft` : '—'} Area</span>
                                                 </div>
-                                            </div>
+                                            </div> */}
 
                                         {/* Display 2 active amenities for preview */}
                                         <div className="pt-2 border-t border-slate-50 grid grid-cols-2 gap-1 text-xs sm:text-sm text-slate-600 font-semibold">
@@ -889,10 +906,12 @@ export default function App() {
                                                 <Check className="w-3.5 h-3.5 text-emerald-500" />
                                                 <span className="truncate">{prop.amenities[0] || 'Clean Area'}</span>
                                             </div>
-                                            <div className="flex items-center gap-1 truncate">
-                                                <Check className="w-3.5 h-3.5 text-emerald-500" />
-                                                <span className="truncate">{prop.amenities[1] || 'AC Provided'}</span>
-                                            </div>
+                                            {prop.amenities.length > 1 && (
+                                                <div className="flex items-center gap-1 truncate">
+                                                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                                    <span className="truncate">{prop.amenities[1] || 'AC Provided'}</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Detail Footer Button & WhatsApp triggers */}
@@ -910,9 +929,7 @@ export default function App() {
                                                     className="p-1.5 bg-[#25d366] hover:bg-[#20ba59] text-white rounded-lg transition-colors shadow-sm flex items-center justify-center"
                                                     title="Direct WhatsApp"
                                                 >
-                                                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                                                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.413 9.863-9.83.001-2.624-1.017-5.091-2.868-6.944-1.851-1.852-4.314-2.871-6.937-2.872-5.438 0-9.863 4.413-9.866 9.83-.001 1.745.486 3.453 1.411 4.967l-.962 3.511 3.601-.945zM17.52 14.3c-.3-.149-1.777-.874-2.052-.974-.275-.1-.475-.149-.675.15-.2.299-.775.973-.95 1.173-.175.2-.35.224-.65.074-.3-.149-1.265-.466-2.41-1.485-.89-.794-1.49-1.775-1.665-2.074-.175-.3-.019-.461.13-.61.135-.133.3-.349.45-.523.15-.174.2-.299.3-.499.1-.2.05-.374-.025-.524-.075-.15-.675-1.624-.925-2.224-.244-.588-.493-.508-.675-.518-.175-.01-.375-.01-.575-.01-.2 0-.525.075-.8 1.073-.275.998-1.05 2.196-1.05 2.246 0 .05.15.349.625.874.775.848 1.625 1.123 1.925 1.248.3.125.4.1.55-.075.15-.175.65-.748.8-1.022.15-.274.3-.224.6-.074s1.9.949 2.225 1.124c.325.174.525.249.6.374.075.124.075.723-.225 1.022-.3.299-1.5 1.472-1.5 1.472z" />
-                                                    </svg>
+                                                    <SiWhatsapp className="w-4 h-4" />
                                                 </a>
                                                 <button
                                                     type="button"
@@ -1104,7 +1121,7 @@ export default function App() {
                             </div>
 
                             {/* Bedrooms / Beds / Size / Bathroom */}
-                            <div className="space-y-3 pt-3 border-t border-slate-100">
+                            {/* <div className="space-y-3 pt-3 border-t border-slate-100">
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
                                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Bedrooms</label>
@@ -1168,7 +1185,7 @@ export default function App() {
                                         ))}
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* Amenities list checklist */}
                             <div className="space-y-2.5">
@@ -1237,7 +1254,7 @@ export default function App() {
                                     {selectedProperty.category}
                                 </span>
 
-                                {selectedProperty.isVerified == true ? (
+                                {/* {selectedProperty.isVerified == true ? (
                                     <span className="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-lg">
                                         VERIFIED NEST
                                     </span>
@@ -1245,7 +1262,7 @@ export default function App() {
                                     <span className="absolute top-3 left-3 bg-slate-100 text-slate-700 border-slate-200 text-sm font-black tracking-wider px-2.5 py-1 rounded-md shadow-sm">
                                         NOT VERIFIED
                                     </span>
-                                }
+                                } */}
                             </div>
 
                             {/* Thumbnails list navigation if available */}
@@ -1307,7 +1324,7 @@ export default function App() {
 
                         {/* Property Specifications Grid */}
                         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-                            {selectedProperty.bedrooms && (
+                            {/* {selectedProperty.bedrooms && (
                               <div>
                                   <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Bedrooms</p>
                                   <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">{selectedProperty.bedrooms} BHK</p>
@@ -1342,7 +1359,7 @@ export default function App() {
                                   <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Floor</p>
                                   <p className="text-xs sm:text-base font-bold text-slate-800 mt-0.5">Floor {selectedProperty.floorNumber}</p>
                               </div>
-                            )}
+                            )} */}
                             {selectedProperty.buildingName && (
                               <div className="col-span-2">
                                   <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Building</p>
@@ -1381,7 +1398,7 @@ export default function App() {
                                 rel="noopener noreferrer"
                                 className="flex-1 py-3.5 px-5 bg-[#25d366] hover:bg-[#20ba59] active:scale-98 text-white text-xs sm:text-sm font-black uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/10"
                             >
-                                <MessageCircle className="w-9 h-9 fill-white" />
+                                <SiWhatsapp className="w-9 h-9 fill-white" />
                                 <span>Chat on WhatsApp</span>
                             </a>
 

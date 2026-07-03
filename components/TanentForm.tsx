@@ -238,7 +238,7 @@ export default function RoommatesPage() {
           <div>
             <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">Listing Title</label>
             <input 
-              type="text" required minLength={10} maxLength={80}
+              type="text" required minLength={4} maxLength={80}
               placeholder="e.g., Luxury Master Bedroom Bedspace near Metro"
               value={tenantForm.title}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setTenantForm(prev => ({ ...prev, title: e.target.value }))}
@@ -254,29 +254,11 @@ export default function RoommatesPage() {
                 <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type="text" required placeholder="Type area (e.g., Dubai Marina, Al Barsha)..."
-                  value={tenantQuery}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setTenantQuery(e.target.value)}
-                  onFocus={() => tenantQuery.length >= 3 && setTenantIsLocationOpen(true)}
+                  value={tenantForm.location}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setTenantForm(prev => ({ ...prev, location: e.target.value }))}
                   className="w-full bg-transparent h-full text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none"
                 />
-                {tenantIsLoading && <Loader2 className="w-4 h-4 text-[#ff0066] animate-spin shrink-0" />}
-                {tenantQuery && !tenantIsLoading && (
-                  <button type="button" onClick={clearTenantInput} className="p-0.5 hover:bg-slate-200 rounded-full shrink-0"><X className="w-3.5 h-3.5 text-slate-500" /></button>
-                )}
               </div>
-
-              {tenantIsLocationOpen && tenantSuggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden max-h-48 overflow-y-auto p-1">
-                  {tenantSuggestions.map(item => (
-                    <button
-                      key={item.place_id} type="button" onClick={() => selectTenantLocation(item.formatted)}
-                      className={`w-full px-3 py-2 text-left text-sm font-medium rounded-xl flex items-center justify-between ${tenantForm.location === item.formatted ? 'bg-pink-50 text-[#ff0066] font-semibold' : 'text-slate-700 hover:bg-slate-50'}`}>
-                      <span className="truncate pr-2">{item.formatted}</span>
-                      {tenantForm.location === item.formatted && <Check className="w-4 h-4 text-[#ff0066] shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 

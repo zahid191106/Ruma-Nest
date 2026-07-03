@@ -28,7 +28,7 @@ export default defineType({
       name: 'title',
       title: 'Listing Title',
       type: 'string',
-      validation: (Rule) => Rule.required().min(10).max(80),
+      validation: (Rule) => Rule.required().min(4).max(80),
       description: 'e.g., Luxury Master Bedroom Bedspace near Metro',
     }),
 

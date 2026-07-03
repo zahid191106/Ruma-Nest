@@ -346,20 +346,20 @@ export default function Carlift() {
                 <input type="datetime-local" required value={form.requestedTime} onChange={(e) => setForm({ ...form, requestedTime: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-1 focus:ring-pink-500 outline-none" />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+              <div className="grid gap-3">
+                {/* <div>
                   <label className="block text-xs font-bold text-slate-600 mb-1">Preferred Car type</label>
                   <input type="text" placeholder="e.g. Sedan, SUV" value={form.preferredCar} onChange={(e) => setForm({ ...form, preferredCar: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-1 focus:ring-pink-500 outline-none" />
-                </div>
+                </div> */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Offer Budget (AED/month)</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-1">Offer Budget (AED)</label>
                   <input type="number" required min="0" placeholder="e.g. 300" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-1 focus:ring-pink-500 outline-none" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-600 mb-1">Purpose of Travel</label>
-                <input type="text" placeholder="e.g. Daily office commute" value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-1 focus:ring-pink-500 outline-none" />
+                <input type="text" placeholder="e.g. Delivering a refrigerator" value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} className="w-full px-3 py-2 border rounded-xl text-sm focus:ring-1 focus:ring-pink-500 outline-none" />
               </div>
 
               {/* PROFILE INPUTS HIDDEN AUTOMATICALLY FOR REGISTERED SESSIONS */}

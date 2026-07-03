@@ -10,15 +10,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle 1450px at 5% 5%, #f984e5, transparent),
-          radial-gradient(circle 1450px at 90% 90%, #f984e5, transparent)
-        `,
-       
-      }}
-    >
+    <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden">
       <Navbar />
 
       <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">

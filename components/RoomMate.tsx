@@ -16,6 +16,14 @@ import {
   Building,
   PlusCircle
 } from 'lucide-react';
+import { 
+  SiFacebook, 
+  SiX, 
+  SiInstagram, 
+  SiWhatsapp,
+  SiTiktok,
+  SiYoutube 
+} from '@icons-pack/react-simple-icons';
 import TenantForm from '@/components/TanentForm'; // This is your multi-part form container
 
 interface Listing {
@@ -375,7 +383,7 @@ export default function RoommatesPage() {
                         rel="noopener noreferrer"
                         className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs md:text-sm tracking-wider uppercase flex items-center justify-center gap-2 shadow-md shadow-emerald-600/10 transition-all active:scale-98"
                       >
-                        <Phone className="w-3.5 h-3.5" /> Direct WhatsApp Chat
+                        <SiWhatsapp className="w-3.5 h-3.5" /> Direct WhatsApp Chat
                       </a>
                     </div>
                   </div>
