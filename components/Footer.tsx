@@ -1,164 +1,543 @@
-'use client';
-import React, { useState, FormEvent, ChangeEvent } from 'react';
+"use client";
+import React, { useState } from 'react';
+import { 
+  Search, 
+  MapPin, 
+  Bell, 
+  ShieldCheck, 
+  LockKeyhole, 
+  UsersIcon, 
+  ChevronRight, 
+  X, 
+  Send,
+  Sparkles,
+  Heart,
+  Award,
+  ArrowRightIcon,
+  ArrowDownRightFromCircle,
+  User2Icon
+} from 'lucide-react';
+
+import { SiWhatsapp, SiFacebook, SiInstagram, SiX, SiTiktok, SiYoutube, SiLinkerd } from '@icons-pack/react-simple-icons';
+
+interface FeatureItem {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
 
 export default function App() {
   const [email, setEmail] = useState<string>('');
   const [subscribed, setSubscribed] = useState<boolean>(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeArea, setActiveArea] = useState<string | null>(null);
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const handleSubscribe = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!email) return;
-    setSubscribed(true);
+  const showToast = (message: string): void => {
+    setToastMessage(message);
     setTimeout(() => {
-      setSubscribed(false);
-      setEmail('');
+      setToastMessage(null);
     }, 4000);
   };
 
-  return (
-    <footer className="w-full bg-[#0a192f] text-slate-300 border-t-2 border-[#ff0066]/20 relative overflow-hidden pt-16 pb-8 font-sans">
-      
-      {/* Ambient background glows */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff0066]/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-10 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+  // Footer
+  const currentYear = new Date().getFullYear();
+  const features = [
+    {
+      icon: (
+        <ShieldCheck className='w-12 h-12 text-pink-600'/>
+      ),
+      title: "100% Verified Listings",
+      desc: "Safe. Secure. Trusted."
+    },
+    {
+      icon: (
+        <LockKeyhole className='w-12 h-12 text-pink-600'/>
+      ),
+      title: "Privacy Protected",
+      desc: "Your privacy is our priority."
+    },
+    {
+      icon: (
+        <UsersIcon className='w-12 h-12 text-pink-600'/>
+      ),
+      title: "Trusted by Thousands",
+      desc: "Join our growing community."
+    },
+    {
+      icon: (
+        <Award className='w-12 h-12 text-pink-600'/>
+      ),
+      title: "Premium Experience",
+      desc: "Best listings. Better living."
+    }
+  ];
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Upper Grid Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-slate-800">
+  const handleSubscribe = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      showToast("Please enter a valid email address!");
+      return;
+    }
+    setSubscribed(true);
+    showToast(`Successfully subscribed! ${email} will now receive premium verified listings.`);
+    setEmail('');
+    setTimeout(() => setSubscribed(false), 5000);
+  };
+
+  const handleCategoryClick = (cat: string): void => {
+    setActiveCategory(cat);
+    showToast(`Filtering for listings: "${cat}" in Abu Dhabi.`);
+  };
+
+  const handleAreaClick = (area: string): void => {
+    setActiveArea(area);
+    showToast(`Exploring properties in popular area: "${area}".`);
+  };
+
+  const handleWhatsAppSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    setShowWhatsAppModal(false);
+    showToast("Connecting you with a support representative on WhatsApp...");
+  };
+
+  return (
+    <div className="w-full relative overflow-hidden px-6 xl:px-24 shadow-2xl bg-[#090114] border border-fuchsia-950/40">
+      
+      {/* ================= TOP WAVE swooshes matching the uploaded image ================= */}
+      {}
+      <div className="absolute top-0 left-0 right-0 h-28 w-full z-10 pointer-events-none overflow-hidden bg-transparent">
+        <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+          {/* White background above the footer curve */}
+          <path d="M0 0 H1440 V40 Q1000 65 720 40 T0 50 Z" fill="#ffffff" />
+          {/* Magenta Accent Curve */}
+          <path d="M0 45 Q360 85 720 50 T1440 55 V60 Q1080 50 720 85 T0 45 Z" fill="url(#pink-gradient)" />
+          {/* Definition of top curves gradients */}
+          <defs>
+            <linearGradient id="pink-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#ec4899" />
+              <stop offset="50%" stopColor="#d91d75" />
+              <stop offset="100%" stopColor="#f43f5e" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      {}
+      {/* Dot Matrix Overlays (Watermarks on left/right borders) */}
+      <div className="absolute left-6 top-36 w-8 h-20 opacity-20 pointer-events-none hidden md:block">
+        <div className="grid grid-cols-4 gap-2">
+          {Array.from({ length: 24 }).map((_, i) => (
+            <div key={i} className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
+          ))}
+        </div>
+      </div>
+      <div className="absolute right-6 bottom-48 w-8 h-20 opacity-20 pointer-events-none hidden md:block">
+        <div className="grid grid-cols-4 gap-2">
+          {Array.from({ length: 24 }).map((_, i) => (
+            <div key={i} className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
+          ))}
+        </div>
+      </div>
+
+      {/* Custom Flower Silhouette Vectors in Background Corners */}
+      <div className="absolute top-16 right-0 opacity-[0.04] pointer-events-none">
+        <svg className="w-80 h-80 text-white" fill="currentColor" viewBox="0 0 100 100">
+          <path d="M50 15 C45 35, 20 40, 20 50 C20 60, 45 65, 50 85 C55 65, 80 60, 80 50 C80 40, 55 35, 50 15 Z" />
+        </svg>
+      </div>
+      <div className="absolute bottom-28 left-0 opacity-[0.03] pointer-events-none">
+        <svg className="w-64 h-64 text-pink-500" fill="currentColor" viewBox="0 0 100 100">
+          <path d="M50 15 C45 35, 20 40, 20 50 C20 60, 45 65, 50 85 C55 65, 80 60, 80 50 C80 40, 55 35, 50 15 Z" />
+        </svg>
+      </div>
+
+      {}
+
+      {/* Content Wrapper */}
+      <div className="relative z-10 px-6 pt-24 pb-12 xl:px-12 md:pt-28 md:pb-16">
+        {/* Abu Dhabi Glowing Pink Skyline (Accurate matches to the uploaded design backdrop) */}
+        <div className="absolute left-0 top-0 h-full overflow-hidden opacity-20 pointer-events-none select-none z-0">
+          <img src="/images/status-1.avif" alt="" className='w-full h-full' />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-10 xl:grid-cols-12 gap-8 xl:gap-12 items-start">
           
-          {/* Column 1: Brand Info (4 Cols) */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="flex items-center gap-3">
-              <img src="/images/logo.png" alt="RumaNest Logo" />
+          {/* ================= COLUMN 1: BRAND LOGO & DESCRIPTION ================= */}
+          {}
+          <div className="lg:col-span-6 xl:col-span-4 flex flex-col space-y-6">
+            
+            {/* Logo Emblem directly sitting on dark purple background (as in Image) */}
+            <div className="flex items-center gap-4">
+              <img src="/images/logo.webp" alt="Logo" className="sm:max-w-md rounded-2xl" />
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-medium">
+            {/* Description Paragraph */}
+            <p className="text-slate-300 text-sm md:text-lg leading-relaxed font-normal max-w-md">
               The premier verified listing platform in Abu Dhabi. We connect thousands of property owners, roommates, and car lifters every single day with secure, direct communications.
             </p>
 
-            {/* Social Channels */}
-            <div className="flex items-center gap-3.5 pt-1">
-              <a href="#facebook" aria-label="Facebook" className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-[#ff0066] hover:text-white flex items-center justify-center transition-all text-slate-400 shadow-sm">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
-                </svg>
-              </a>
-              <a href="#instagram" aria-label="Instagram" className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-[#ff0066] hover:text-white flex items-center justify-center transition-all text-slate-400 shadow-sm">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                </svg>
-              </a>
-              <a href="#twitter" aria-label="Twitter" className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-[#ff0066] hover:text-white flex items-center justify-center transition-all text-slate-400 shadow-sm">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                </svg>
-              </a>
-            </div>
-          </div>
-
-          {/* Column 2: Services / I'm Looking For (2.5 Cols) */}
-          <div className="lg:col-span-2 space-y-4">
-            <h3 className="text-sm font-black text-white tracking-widest uppercase pb-2 border-b border-slate-800 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff0066]" />
-              I'm Looking For
-            </h3>
-            <ul className="space-y-2.5 text-xs sm:text-sm font-bold">
-              <li><a href="#room" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Room</span></a></li>
-              <li><a href="#studio" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Studio</span></a></li>
-              <li><a href="#bedspace" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Bed Space</span></a></li>
-              <li><a href="#apartment" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Apartment</span></a></li>
-              <li><a href="#carlift" className="hover:text-[#ff0066] transition-colors flex items-center gap-1.5"><span>Car Lift</span></a></li>
-            </ul>
-          </div>
-
-          {/* Column 3: Top Areas (2.5 Cols) */}
-          <div className="lg:col-span-2 space-y-4">
-            <h3 className="text-sm font-black text-white tracking-widest uppercase pb-2 border-b border-slate-800 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff0066]" />
-              Popular Areas
-            </h3>
-            <ul className="space-y-2.5 text-xs sm:text-sm font-bold text-slate-400">
-              <li><a href="#alwahda" className="hover:text-[#ff0066] transition-colors">Al Wahda</a></li>
-              <li><a href="#mussafah" className="hover:text-[#ff0066] transition-colors">Mussafah</a></li>
-              <li><a href="#khalifa" className="hover:text-[#ff0066] transition-colors">Khalifa City</a></li>
-              <li><a href="#tourist" className="hover:text-[#ff0066] transition-colors">Tourist Club Area</a></li>
-              <li><a href="#mby" className="hover:text-[#ff0066] transition-colors">Mohammed Bin Zayed</a></li>
-              <li><a href="#reem" className="hover:text-[#ff0066] transition-colors">Al Reem Island</a></li>
-            </ul>
-          </div>
-
-          {/* Column 4: Newsletter & Direct Contact (3.5 Cols) */}
-          <div className="lg:col-span-4 space-y-6">
-            
-            {/* Subscription Form */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-black text-white tracking-widest uppercase pb-1 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#ff0066]" />
-                Keep Updated
-              </h3>
-              <p className="text-xs text-slate-400">Subscribe for the latest premium verified listings in Abu Dhabi.</p>
-              
-              <form onSubmit={handleSubscribe} className="flex gap-2">
-                <input 
-                  type="email" 
-                  required
-                  placeholder="Enter your email address" 
-                  value={email}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                  className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[#ff0066]/30 focus:border-[#ff0066] transition-all"
-                />
-                <button 
-                  type="submit"
-                  className="h-10 px-5 rounded-xl bg-[#ff0066] hover:bg-[#e6005c] active:scale-95 text-white font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md shadow-pink-500/10"
-                >
-                  <span>Subscribe</span>
-                </button>
-              </form>
-
-              {subscribed && (
-                <p className="text-xs text-emerald-400 font-bold animate-pulse">✓ Thank you for subscribing!</p>
-              )}
-            </div>
-
-            {/* Direct Support Details */}
-            <div className="pt-3 space-y-2.5 border-t border-slate-800">
-              <div className="flex items-center gap-2.5 text-xs sm:text-sm">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#25d366] animate-pulse" />
-                <span className="font-extrabold text-slate-200">24/7 Support Active</span>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 pt-1">
-                <a href="https://wa.me/971500000000" className="flex items-center gap-2 bg-[#25d366]/10 hover:bg-[#25d366]/20 border border-[#25d366]/30 rounded-xl px-3.5 py-2 text-[#25d366] transition-all text-xs font-bold">
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.413 9.863-9.83.001-2.624-1.017-5.091-2.868-6.944-1.851-1.852-4.314-2.871-6.937-2.872-5.438 0-9.863 4.413-9.866 9.83-.001 1.745.486 3.453 1.411 4.967l-.962 3.511 3.601-.945z" />
+            {}
+            {/* Follow Us with Custom Heart Graphic Sweep line */}
+            <div className="flex flex-col space-y-3 pt-2">
+              <div className="flex items-center gap-3">
+                <span className="text-base font-bold tracking-wider text-pink-600 uppercase">Follow Us</span>
+                <div className="relative grow h-px max-w-40">
+                  {/* SVG custom line drawing ending in a beautiful heart */}
+                  <svg className="absolute left-0 -top-2 w-full h-6 text-pink-500" viewBox="0 0 150 24" fill="none">
+                    <path d="M0 12 H100 Q110 12 115 6 T122 12 Q126 18 132 12" stroke="currentColor" strokeWidth="1" />
+                    {/* Heart Vector overlay */}
+                    <path d="M128 6 C126 4 123 4 121 6 C119 4 116 4 114 6 C114 9 118 13 121 16 C124 13 128 9 128 6 Z" fill="currentColor" className="animate-pulse" />
                   </svg>
-                  <span>Direct WhatsApp Chat</span>
-                </a>
+                </div>
+              </div>
+
+              {/* Social Circle Buttons */}
+              <div className="flex items-center space-x-3">
+                {[
+                  { id: 'fb', icon: SiFacebook, href: '#facebook', label: 'Facebook' },
+                  { id: 'ig', icon: SiInstagram, href: '#instagram', label: 'Instagram' },
+                  { id: 'tw', icon: SiX, href: '#twitter', label: 'Twitter' },
+                  { id: 'yt', icon: SiYoutube, href: '#youtube', label: 'YouTube' },
+                  { id: 'tt', icon: SiTiktok, href: '#tiktok', label: 'TikTok' },
+                ].map((social) => {
+                  const IconComponent = social.icon;
+    
+                  return (
+                    <button
+                      key={social.id}
+                      onClick={() => showToast(`${social.label} profile integration coming soon!`)}
+                      className="w-12 h-12 rounded-full bg-linear-to-br from-pink-600 to-blue-900 flex items-center justify-center text-white hover:scale-110 transition-all duration-300 shadow-lg"
+                    >
+                      {/* Render the component directly and pass your classes */}
+                      <IconComponent className="w-6 h-6 fill-current" />
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
           </div>
 
-        </div>
+          {/* ================= COLUMN 2: I'M LOOKING FOR ================= */}
+          {}
+          <div className="lg:col-span-4 xl:col-span-2 flex flex-col space-y-5 relative">
+            
+            {/* Header with Search icon inside solid pink gradient circle */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-pink-500 to-rose-600 flex items-center justify-center text-white shadow-md">
+                <Search className="w-5 h-5 stroke-3" />
+              </div>
+              <div className="flex flex-col">
+                <h3 className="text-white font-extrabold text-base tracking-wider uppercase">
+                  I'm looking for
+                </h3>
+                <div className="h-0.5 w-12 bg-pink-500 mt-1"></div>
+              </div>
+            </div>
 
-        {/* Lower Copyright Panel */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 text-center sm:text-left">
-          <p className="text-xs text-slate-500 font-semibold tracking-wide">
-            © 2026 RumaNest. All rights reserved. Designed with premium verified security standards.
-          </p>
-          
-          <div className="flex items-center gap-5 text-xs text-slate-400 font-bold">
-            <a href="#privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-            <span className="text-slate-700">•</span>
-            <a href="#terms" className="hover:text-white transition-colors">Terms of Service</a>
-            <span className="text-slate-700">•</span>
-            <a href="#support" className="hover:text-white transition-colors">Help Support</a>
+            {/* List Items */}
+            <ul className="space-y-3.5 text-base z-10">
+              {[
+                "Room",
+                "Studio",
+                "Bed Space",
+                "Apartment",
+                "Car Lift"
+              ].map((item, index) => (
+                <li key={index}>
+                  <button 
+                    onClick={() => handleCategoryClick(item)}
+                    className={`group flex items-center space-x-2 text-left cursor-pointer transition-colors duration-200 w-full py-1 ${
+                      activeCategory === item 
+                        ? 'text-pink-400 font-bold' 
+                        : 'text-slate-300 hover:text-pink-400'
+                    }`}
+                  >
+                    <span className="text-pink-500 font-semibold text-base tracking-wider transition-transform duration-200 group-hover:translate-x-1">
+                      <ArrowRightIcon />
+                    </span>
+                    <span>{item}</span>
+                    {activeCategory === item && (
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_8px_#ec4899]"></span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {/* Faint search watermark background */}
+            <div className="absolute right-0 bottom-4 opacity-[0.02] pointer-events-none">
+              {/* <Search className="w-24 h-24 text-white" /> */}
+            </div>
           </div>
-        </div>
 
+          {/* ================= COLUMN 3: POPULAR AREAS ================= */}
+          {}
+          <div className="lg:col-span-5 xl:col-span-2 flex flex-col space-y-5 relative">
+            
+            {/* Header with Location pin inside solid pink gradient circle */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-pink-500 to-rose-600 flex items-center justify-center text-white shadow-md">
+                <MapPin className="w-5 h-5 stroke-3" />
+              </div>
+              <div className="flex flex-col">
+                <h3 className="text-white font-extrabold text-base tracking-wider uppercase">
+                  Popular Areas
+                </h3>
+                <div className="h-0.5 w-12 bg-pink-500 mt-1"></div>
+              </div>
+            </div>
+
+            {/* List Items */}
+            <ul className="text-base z-10">
+              {[
+                "Al Wahda",
+                "Mussafah",
+                "Khalifa City",
+                "Tourist Club Area",
+                "Mohammed Bin Zayed",
+                "Al Reem Island"
+              ].map((item, index) => (
+                <li key={index}>
+                  <button 
+                    onClick={() => handleAreaClick(item)}
+                    className={`group flex items-center space-x-2 text-left cursor-pointer transition-colors duration-200 w-full py-1 ${
+                      activeArea === item 
+                        ? 'text-pink-400 font-bold' 
+                        : 'text-slate-300 hover:text-pink-400'
+                    }`}
+                  >
+                    <span className="text-pink-500 font-semibold text-xs tracking-wider transition-transform duration-200 group-hover:translate-x-1">
+                      <ArrowDownRightFromCircle className='w-5 h-5 mb-3' />
+                    </span>
+                    <span>{item}</span>
+                    {activeArea === item && (
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_8px_#ec4899]"></span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {/* Faint paper airplane graphic background */}
+            <div className="absolute right-0 bottom-0 opacity-[0.03] pointer-events-none">
+              <svg className="w-20 h-20 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </div>
+          </div>
+
+          {/* ================= COLUMN 4: KEEP UPDATED & SUPPORT ================= */}
+          {}
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col space-y-6">
+            
+            {/* Header with Bell notification inside solid pink circle */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-linear-to-tr from-pink-500 to-rose-600 flex items-center justify-center text-white shadow-md">
+                <Bell className="w-5 h-5 stroke-3" />
+              </div>
+              <div className="flex flex-col">
+                <h3 className="text-white font-extrabold text-base tracking-wider uppercase">
+                  Keep Updated
+                </h3>
+                <div className="h-0.5 w-12 bg-pink-500 mt-1"></div>
+              </div>
+            </div>
+
+            {/* Keep Updated details */}
+            <p className="text-slate-300 text-base leading-relaxed">
+              Subscribe for the latest premium verified listings in Abu Dhabi.
+            </p>
+
+            {/* Input Form */}
+            <form onSubmit={handleSubscribe} className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  className="grow bg-[#0f041d]/70 border border-fuchsia-900/60 rounded-xl px-4 py-3 text-base text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="bg-linear-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold px-6 py-3 rounded-xl text-base transition-all duration-300 transform active:scale-95 shadow-lg hover:shadow-pink-500/20 whitespace-nowrap tracking-wide uppercase"
+                >
+                  Subscribe
+                </button>
+              </div>
+            </form>
+
+            {/* Divider dotted line matching ChatGPT Image Jun 20, 2026, 04_54_47 PM.png */}
+            <div className="border-t-3 border-dashed border-pink-600 my-2 mb-5 "></div>
+
+            {/* Support & WhatsApp segment */}
+            <div className="flex flex-col space-y-5">
+              
+              {/* 24/7 Active Badge (Recreated with matching headset-like icon design) */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-linear-to-tr from-pink-500 to-rose-600 flex items-center justify-center text-white shadow-md">
+                  <User2Icon />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-white font-bold text-base tracking-wide">24/7 Support Active</span>
+                  <span className="text-sm text-slate-400">
+                    We're here to help you <span className="text-pink-500 font-semibold">anytime.</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Direct WhatsApp Pill Button */}
+              <button
+                onClick={() => setShowWhatsAppModal(true)}
+                className="w-auto bg-[#121b22]/90 hover:bg-emerald-400 border border-emerald-500/40 hover:border-emerald-500 text-emerald-500 hover:text-white cursor-pointer rounded-full px-6 py-3.5 flex items-center justify-between transition-all duration-300 font-semibold text-base shadow-md group"
+              >
+                <div className="flex items-center space-x-3">
+                  {/* SVG WhatsApp Custom Emblem */}
+                  <SiWhatsapp />  
+                  <span>Direct WhatsApp Chat</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-emerald-500 group-hover:text-white group-hover:translate-x-1 transition-transform" />
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
       </div>
 
-    </footer>
+
+      {/* ================= BOTTOM BAR (DARK WRAPPER WITH PINK HIGHLIGHTS) ================= */}
+      {}
+      {/* Separating Neon line from footer body to trust icons */}
+      <div className="relative w-full h-1.5">
+        <div className="absolute inset-0 bg-linear-to-r from-transparent via-pink-500 to-transparent opacity-80 shadow-[0_0_8px_#ec4899]"></div>
+      </div>
+          
+      <div className="w-full text-white font-sans z-100">
+        {/* Top Neon Border Line */}
+        <div className="w-full h-px bg-linear-to-r from-transparent via-pink-500 to-transparent relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-1 bg-pink-400 blur-sm rounded-full"></div>
+        </div>
+
+        <div className="container mx-auto px-6 py-10">
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 items-center">
+            {features.map((item, index) => (
+              <div 
+                key={index} 
+                className={`flex items-center space-x-4 lg:px-6 ${
+                  index !== features.length - 1 ? 'lg:border-r lg:border-gray-800' : ''
+                }`}
+              >
+                {/* Icon Circle */}
+                <div className="shrink-0 w-20 h-20 rounded-full border border-pink-600 bg-pink-900/20 flex items-center justify-center shadow-[0_0_15px_rgba(236,72,153,0.1)]">
+                  {item.icon}
+                </div>
+                {/* Text Info */}
+                <div className="flex-col">
+                  <h4 className="font-bold text-base text-gray-100 tracking-wide">{item.title}</h4>
+                  <p className="text-sm text-gray-400 mt-0.5">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom Copyright & Location Subfooter */}
+          <div className="mt-12 pt-6 border-t border-gray-900 flex flex-col sm:flex-row items-center justify-center gap-4 text-base text-gray-400">
+            <p>© {currentYear} <span className="font-semibold text-gray-200">RumaNest</span>. All Rights Reserved.</p>
+            <span className="hidden sm:inline text-gray-700">|</span>
+            <p className="flex items-center gap-1.5">
+              Made with 
+              <span className="text-pink-500 animate-pulse">❤️</span> 
+              in Abu Dhabi
+            </p>
+          </div>
+        </div>
+      </div>
+      
+
+      {/* ================= INTERACTIVE TOAST & MODAL SYSTEMS ================= */}
+      {}
+      {/* Interactive Toast Notifications */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#0b0117] border border-pink-500 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 max-w-sm animate-bounce-short">
+          <div className="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center text-white shrink-0">
+            <Sparkles className="w-5 h-5" />
+            {/* <img src="/images/ruma-logo.svg" alt="" /> */}
+          </div>
+          <div className="grow">
+            <p className="text-base font-bold text-pink-400">RumaNest System Update</p>
+            <p className="text-sm text-slate-200 mt-0.5">{toastMessage}</p>
+          </div>
+          <button onClick={() => setToastMessage(null)} className="text-slate-400 hover:text-white shrink-0">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Simulated Interactive WhatsApp Chat Modal */}
+      {showWhatsAppModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#121b22] text-[#e9edef] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-emerald-900">
+            {/* Header */}
+            <div className="bg-[#008069] p-4 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-[#121b22] flex items-center justify-center text-emerald-400 font-bold">
+                  RN
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-base">RumaNest Support</h4>
+                  <span className="text-xs text-emerald-200 flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-ping"></span>
+                    Online • Typical reply under 1m
+                  </span>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowWhatsAppModal(false)}
+                className="text-white hover:bg-white/10 p-1.5 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Chat Body */}
+            <div className="p-6 space-y-4 bg-[#0b141a] h-64 overflow-y-auto flex flex-col justify-end">
+              <div className="bg-[#202c33] rounded-2xl p-4 text-sm max-w-[85%] self-start relative">
+                <p className="text-slate-200">
+                  Hello! Welcome to RumaNest Abu Dhabi support. 🇦🇪
+                </p>
+                <p className="text-slate-200 mt-1">
+                  How can we help you find the perfect nest or assist with car lifts today?
+                </p>
+                <span className="text-[10px] text-slate-400 absolute right-3 bottom-1">11:04 AM</span>
+              </div>
+            </div>
+
+            {/* Input Footer */}
+            <form onSubmit={handleWhatsAppSubmit} className="bg-[#1f2c34] p-4 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                required
+                className="grow bg-[#2a3942] border-none text-white rounded-full px-4 py-2.5 text-sm placeholder-[#8696a0] focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+              />
+              <button 
+                type="submit"
+                className="bg-[#00a884] hover:bg-[#008069] text-white p-2.5 rounded-full transition-colors shrink-0"
+              >
+                <Send className="w-4 h-4 fill-current" />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+    </div>
   );
 }
