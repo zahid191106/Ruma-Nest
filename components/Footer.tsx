@@ -159,7 +159,7 @@ export default function App() {
       {/* Content Wrapper */}
       <div className="relative z-10 px-6 pt-24 pb-12 xl:px-12 md:pt-28 md:pb-16">
         {/* Abu Dhabi Glowing Pink Skyline (Accurate matches to the uploaded design backdrop) */}
-        <div className="absolute left-0 top-0 h-full overflow-hidden opacity-20 pointer-events-none select-none z-0">
+        <div className="absolute left-0 right-0 top-0 h-full overflow-hidden opacity-12 pointer-events-none select-none z-0">
           <img src="/images/status-1.avif" alt="" className='w-full h-full' />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-10 xl:grid-cols-12 gap-8 xl:gap-12 items-start">
@@ -431,7 +431,7 @@ export default function App() {
               <div 
                 key={index} 
                 className={`flex items-center space-x-4 lg:px-6 ${
-                  index !== features.length - 1 ? 'lg:border-r lg:border-gray-800' : ''
+                  index !== features.length - 1 ? 'lg:border-r lg:border-gray-500' : ''
                 }`}
               >
                 {/* Icon Circle */}

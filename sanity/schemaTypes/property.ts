@@ -140,7 +140,7 @@ export default defineType({
       title: 'Overview Details / Description',
       type: 'text',
       rows: 4,
-      validation: (Rule) => Rule.required().min(5),
+      validation: (Rule) => Rule.required().min(3),
     }),
     // Overview Specifications
     defineField({
@@ -150,48 +150,7 @@ export default defineType({
       description: 'e.g., Solo / Couple, Bachelors, Females Only',
       initialValue: 'Solo / Couple',
     }),
-    // 5. PROPERTY SPECS & ROOM DETAILS
-    // defineField({
-    //   name: 'bedrooms',
-    //   title: 'Total Bedrooms in Flat',
-    //   type: 'number',
-    //   description: 'How many total rooms are in the whole apartment (e.g., 1, 2, 3 BHK)',
-    //   validation: (Rule) => Rule.min(1),
-    // }),
-    // defineField({
-    //   name: 'totalBedsInRoom',
-    //   title: 'Total Beds in this Specific Room',
-    //   type: 'number',
-    //   description: 'Crucial for Bed Space listings (e.g., 2 beds, 4 beds sharing). Set to 1 if it is a private room.',
-    //   initialValue: 1,
-    //   validation: (Rule) => Rule.min(1),
-    // }),
-    // defineField({
-    //   name: 'bathrooms',
-    //   title: 'Number of Bathrooms',
-    //   type: 'number',
-    //   description: 'Number of bathrooms available (or shared) for this listing',
-    //   validation: (Rule) => Rule.min(1),
-    // }),
-    // defineField({
-    //   name: 'isEnsuite',
-    //   title: 'Attached / Ensuite Bathroom?',
-    //   type: 'boolean',
-    //   description: 'Check this if the bathroom is private/attached inside the room',
-    //   initialValue: false,
-    // }),
-    // defineField({
-    //   name: 'floorNumber',
-    //   title: 'Floor Number',
-    //   type: 'number',
-    //   description: 'e.g., 14th Floor (Great info for high-rise Dubai buildings)',
-    // }),
-    // defineField({
-    //   name: 'sizeSqFt',
-    //   title: 'Size (Sq. Ft.)',
-    //   type: 'number',
-    //   description: 'Standard local measurement unit',
-    // }),
+    
     // Expanded details amenities
     defineField({
       name: 'includedAmenities',
@@ -236,7 +195,7 @@ export default defineType({
   preview: {
     select: {
       title: 'title',
-      subtitle: 'buildingName',
+      subtitle: 'location',
       priceAmount: 'price',
       cycle: 'price.billingCycle',
       media: 'images.0',

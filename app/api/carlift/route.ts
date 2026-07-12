@@ -3,15 +3,17 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { writeClient } from '@/sanity/lib/sanity.write';
+import { client } from '@/sanity/lib/client';
+
+// 🚀 CRITICAL FIX 1: Tell Next.js to NEVER cache this API response dynamically
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // 🟢 CREATE CAR LIFT PASSENGER REQUEST (POST)
 export async function POST(request: Request) {
   try {
-    // 1. Authenticate user session (Optional check now since unregistered guests can post)
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
-
-    // 2. Parse payload matching the updated passenger form inputs
     const body = await request.json();
 
     const {
@@ -25,31 +27,26 @@ export async function POST(request: Request) {
       guestPhone
     } = body;
 
-    // 3. Strict Validation check for core request parameters
     if (!pickupLocation || !dropoffLocation || !requestedTime || !amount) {
       return NextResponse.json({ 
         error: 'Missing required parameters (pickupLocation, dropoffLocation, requestedTime, or amount)' 
       }, { status: 400 });
     }
 
-    // 4. Build dynamic payload properties based on authentication state
     const userProfileData: any = {};
 
     if (session && userId) {
-      // If user is registered and logged in
       userProfileData.registeredUser = {
         _type: 'reference',
         _ref: userId
       };
     } else {
-      // Validation fallback for unregistered guest users
       if (!guestName || !guestPhone) {
         return NextResponse.json({ 
           error: 'Unregistered users must provide a guest name and phone number.' 
         }, { status: 400 });
       }
 
-      // If user is not registered / guest user
       userProfileData.guestUserDetails = {
         _type: 'object',
         name: guestName,
@@ -57,20 +54,18 @@ export async function POST(request: Request) {
       };
     }
 
-    // 5. Build dynamic schema entry matching your new Sanity schema layout perfectly
     const newLiftRequest = await writeClient.create({
       _type: 'carLift',
-      isActive: false,       // Default false: needs admin activation
-      userVerified: !!userId, // Auto-verified true if logged in with an account, else false for admin review
+      isActive: false,       
+      userVerified: !!userId, 
       
       pickupLocation,
       dropoffLocation,
-      requestedTime,         // ISO DateTime String
+      requestedTime,         
       preferredCar: preferredCar || 'Any Car',
       purpose: purpose || 'General Commute',
       amount: Number(amount),
 
-      // Spread out either registeredUser reference or guestUserDetails object safely
       ...userProfileData
     });
 
@@ -78,5 +73,37 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('CAR LIFT POST ROUTE ERROR:', error);
     return NextResponse.json({ error: 'Request submission failed', details: error?.message }, { status: 500 });
+  }
+}
+
+// 🔵 FETCH CAR LIFT PASSENGER REQUESTS (GET)
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    let query = '';
+    let params = {};
+
+    if (session && (session.user as any)?.id) {
+      // Fetching all records for this user regardless of whether isActive is true or false
+      query = `*[_type == "carLift" && registeredUser._ref == $userId] | order(_createdAt desc)`;
+      params = { userId: (session.user as any).id };
+    } else {
+      return NextResponse.json({ success: true, data: [] });
+    }
+
+    // 🚀 CRITICAL FIX 2: Explicitly bypass the Sanity Edge CDN cache to read real-time mutations
+    const requests = await client.fetch(query, params, {
+      useCdn: false,
+      stega: false
+    });
+    
+    return NextResponse.json({ success: true, data: requests || [] });
+  } catch (error: any) {
+    console.error('CAR LIFT GET ROUTE ERROR:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch car lift entries' }, 
+      { status: 500 }
+    );
   }
 }
