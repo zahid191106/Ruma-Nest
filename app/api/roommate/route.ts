@@ -5,56 +5,21 @@ import { authOptions } from '../auth/[...nextauth]/route';
 import { writeClient } from '@/sanity/lib/sanity.write';
 import { client } from '@/sanity/lib/client';
 
-// 🟢 GET ALL ACTIVE AVAILABLE ROOMMATE LISTINGS
-export async function GET() {
-  try {
-    const listingsQuery = `*[_type == "roommateListing" && isActive == true && status == "available"] | order(_createdAt desc){
-      _id,
-      title,
-      location,
-      gender,
-      freeSpace,
-      price,
-      moveIn,
-      images,
-      amenities,
-      whatsappNumber,
-      status,
-      author->{ _id, name, email }
-    }`;
-    
-    const data = await client.fetch(listingsQuery, {}, { next: { revalidate: 60 } });
-    return NextResponse.json({ success: true, data });
-  } catch (error: any) {
-    console.error('ROOMMATE GET ALL ERROR:', error);
-    return NextResponse.json({ error: 'Failed to fetch listings', details: error?.message }, { status: 500 });
-  }
-}
-
 // 🔵 CREATE A NEW ROOMMATE LISTING (POST)
 export async function POST(request: Request) {
   try {
-    // 1. Check if a session exists (Optional checking now)
     const session = await getServerSession(authOptions);
-    
     let authorId = "";
 
     if (session?.user?.email) {
-      // 💡 User is logged in: Query Sanity to find their corresponding 'user' document id
       const userDoc = await client.fetch(
         `*[_type == "user" && email == $email][0]._id`,
         { email: session.user.email }
       );
-      
-      if (userDoc) {
-        authorId = userDoc;
-      }
+      if (userDoc) authorId = userDoc;
     }
 
-    // 💡 2. Fallback if the user is un-registered or not logged in
     if (!authorId) {
-      // Replace this string with a real 'user' document ID from your Sanity Studio
-      // (e.g., Create a user named "Public Guest" inside your studio and paste its _id here)
       authorId = "9ad23d3e-dff9-45d1-91e0-6c3bbbc4f47a"; 
     }
 
@@ -64,6 +29,7 @@ export async function POST(request: Request) {
     const location = formData.get('location') as string;
     const gender = formData.get('gender') as string;
     const freeSpace = formData.get('freeSpace');
+    const nationality = formData.get('nationality') as string;
     const priceAmount = formData.get('priceAmount') as string;
     const billingCycle = formData.get('billingCycle') as string;
     const moveIn = formData.get('moveIn') as string;
@@ -72,12 +38,10 @@ export async function POST(request: Request) {
     const amenities = formData.getAll('amenities') as string[];
     const files = formData.getAll('images') as File[];
 
-    // Core validation validation parameters checking
-    if (!title || !location || !gender || !priceAmount || !billingCycle || !whatsappNumber || !files.length || !amenities.length) {
+    if (!title || !location || !gender || !nationality || !priceAmount || !billingCycle || !whatsappNumber || !files.length || !amenities.length) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    // Loop through uploaded file arrays & pipe straight to Sanity Asset pipeline
     const uploadedImagesReferences = [];
     for (const file of files) {
       if (file && file.size > 0) {
@@ -100,14 +64,14 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Build document layout including the required reference mapping
     const newRoommatePost = await writeClient.create({
       _type: 'roommateListing',
-      isActive: false, // Default false for moderation safety queue
+      isActive: false, 
       title,
       location,
       gender,
       freeSpace: Number(freeSpace || 1),
+      nationality,
       price: {
         amount: Number(priceAmount),
         billingCycle: billingCycle
@@ -117,7 +81,6 @@ export async function POST(request: Request) {
       amenities: amenities,
       whatsappNumber,
       status: 'available',
-      // 💡 Link the reference mapping based on authentication fallback
       author: {
         _type: 'reference',
         _ref: authorId
@@ -128,5 +91,42 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('ROOMMATE POST ERROR:', error);
     return NextResponse.json({ error: 'Listing creation failed', details: error?.message }, { status: 500 });
+  }
+}
+
+// 🟢 GET ALL LOGGED-IN USER'S ROOMMATE LISTINGS (Bypassing CDN Cache)
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as any)?.id;
+    
+    if (!session || !userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const listingsQuery = `*[_type == "roommateListing" && author._ref == $userId] | order(_createdAt desc){
+      _id,
+      title,
+      location,
+      gender,
+      freeSpace,
+      price,
+      moveIn,
+      images,
+      amenities,
+      whatsappNumber,
+      nationality,
+      status,
+      isActive,
+      author->{ _id, name, email }
+    }`;
+    
+    // 🚀 FIXED: Changed from 'client' to 'writeClient' to avoid the Sanity Edge CDN replication delay
+    const data = await writeClient.fetch(listingsQuery, { userId });
+    
+    return NextResponse.json({ success: true, data });
+  } catch (error: any) {
+    console.error('ROOMMATE GET USER-SPECIFIC ERROR:', error);
+    return NextResponse.json({ error: 'Failed to fetch user listings', details: error?.message }, { status: 500 });
   }
 }

@@ -104,7 +104,7 @@ export default function App() {
   };
 
   return (
-    <div className="w-full relative overflow-hidden px-6 xl:px-24 shadow-2xl bg-[#090114] border border-fuchsia-950/40">
+    <div className="w-full relative overflow-hidden px-6 xl:px-24 shadow-2xl bg-[#090114]">
       
       {/* ================= TOP WAVE swooshes matching the uploaded image ================= */}
       {}

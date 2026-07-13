@@ -4,10 +4,10 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Mail, Lock, Loader2, ArrowRight, Building2 } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
-  // 1. ADDED: Password state tracker variable
   const [password, setPassword] = useState('') 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -19,10 +19,9 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Trigger secure password verification against Sanity database
       const res = await signIn('credentials', {
         email: email.toLowerCase().trim(),
-        password: password, // 2. FIXED: This will now read your password state variable cleanly
+        password: password, 
         redirect: false,
         callbackUrl: '/profile',
       })
@@ -41,73 +40,106 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50/50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-          Sign in to RumaNest
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
-          <Link href="/register" className="font-semibold text-emerald-600 hover:text-emerald-500 underline">
-            create a brand new account
-          </Link>
-        </p>
-      </div>
+    <main className="w-full flex items-center justify-center  p-4 sm:p-6 md:p-8 text-gray-900 font-sans">
+      
+      {/* Structural Card Container */}
+      <div className="w-full max-w-md bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-10 shadow-xl shadow-purple-950/5">
+        
+        {/* Brand Header Section */}
+        <div className="flex flex-col items-center text-center space-y-4 mb-8">
+          <img src="/images/logo.png" alt="" />
+          <div>
+            <h1 className="text-sm text-gray-500 mt-1">
+              Sign in to manage your spaces and preferences
+            </h1>
+          </div>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl border border-gray-100 rounded-2xl sm:px-10">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            
-            {error && (
-              <div className="p-3 text-sm font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl">
-                ⚠️ {error}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600">
-                Email Address
-              </label>
-              <div className="mt-1">
-                <input
-                  type="email"
-                  required
-                  placeholder="name@example.com"
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+        {/* Form Workspace Layout */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          
+          {error && (
+            <div className="p-3 text-xs font-medium text-pink-700 bg-pink-50 border border-pink-100 rounded-xl flex items-start gap-2.5">
+              <span className="text-sm leading-none">⚠️</span>
+              <span>{error}</span>
             </div>
+          )}
 
-            {/* 3. ADDED: Password Input Input Field UI block */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600">
+          {/* Email Address Panel */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold tracking-wide text-gray-700 uppercase">
+              Email Address
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <Mail className="h-4 w-4 stroke-[2.25]" />
+              </div>
+              <input
+                type="email"
+                required
+                placeholder="name@example.com"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 text-sm transition-all duration-200 placeholder-gray-400 text-gray-900 font-medium"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Password Input Panel */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold tracking-wide text-gray-700 uppercase">
                 Password
               </label>
-              <div className="mt-1">
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm transition"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              <Link href="#" className="text-xs font-semibold text-purple-600 hover:text-purple-700 transition">
+                Forgot password?
+              </Link>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <Lock className="h-4 w-4 stroke-[2.25]" />
               </div>
+              <input
+                type="password"
+                required
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 focus:border-pink-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/10 text-sm transition-all duration-200 placeholder-gray-400 text-gray-900 font-sans"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
+          </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center bg-emerald-500 text-white p-3 rounded-xl font-bold hover:bg-emerald-600 transition disabled:opacity-50 text-sm tracking-wide cursor-pointer"
-              >
-                {loading ? 'Verifying Credentials...' : 'Sign In'}
-              </button>
-            </div>
-          </form>
+          {/* Form Trigger Actions button */}
+          <div className="pt-1">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-pink-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:opacity-95 active:scale-[0.99] transition-all duration-200 disabled:opacity-50 text-sm tracking-wide cursor-pointer shadow-md shadow-purple-600/10"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Verifying Account...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Footer Account Redirection Link */}
+        <div className="text-center text-sm text-gray-500 mt-8 pt-5 border-t border-gray-100">
+          Don't have an account?{' '}
+          <Link href="/register" className="font-semibold text-purple-600 hover:text-purple-700 transition underline underline-offset-4 decoration-2">
+            Create account
+          </Link>
         </div>
+
       </div>
     </main>
   )

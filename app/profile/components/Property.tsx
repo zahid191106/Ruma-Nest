@@ -232,7 +232,7 @@ export default function Property({ properties, setProperties, loading, refreshDa
   if (loading) return <div className="p-6 text-gray-500 animate-pulse text-sm font-medium">Loading listings data matrix...</div>;
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto">
       
       {/* Tab Select Header */}
       <div className="flex justify-between items-center border-b border-gray-200 pb-2">
@@ -469,7 +469,7 @@ export default function Property({ properties, setProperties, loading, refreshDa
       {/* 🔍 MODAL INFO GALLERY OVERLAY */}
       {viewingDetails && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-xl border w-full max-w-2xl max-h-[90vh] flex flex-col">
+          <div className="bg-white rounded-xl shadow-xl border w-full max-w-7xl max-h-[90vh] flex flex-col">
             
             <div className="flex justify-between items-center border-b p-4">
               <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{viewingDetails.title}</h3>

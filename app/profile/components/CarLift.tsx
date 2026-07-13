@@ -154,7 +154,7 @@ export default function CarLift({ carLifts, setCarLifts, loading, refreshData }:
   if (loading) return <div className="p-6 text-gray-500 animate-pulse text-sm font-medium">Loading car-lift logs matrix...</div>;
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto">
       
       {/* Navigation Tabs Header */}
       <div className="flex justify-between items-center border-b border-gray-200 pb-2">

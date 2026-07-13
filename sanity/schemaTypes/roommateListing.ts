@@ -56,6 +56,13 @@ export default defineType({
     }),
 
     defineField({
+      name: 'nationality',
+      title: 'Nationality',
+      type: 'string',
+      description: 'Enter Your Nationality',
+    }),
+
+    defineField({
       name: 'freeSpace',
       title: 'Free Space Available',
       type: 'number',

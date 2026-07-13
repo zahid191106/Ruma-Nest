@@ -1,3 +1,4 @@
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth, { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { writeClient } from '@/sanity/lib/sanity.write'
@@ -30,7 +31,7 @@ export const authOptions: AuthOptions = {
 
         // Return session object if verification passes
         return {
-          id: user._id,
+          id: user._id, // This is your Sanity document _id
           name: user.name,
           email: user.email,
         }
@@ -38,9 +39,19 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
+    // 🟢 STEP 1: Intercept the user object upon login and persist it inside the encrypted JWT cookie payload
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.sub = user.id // Forces NextAuth's default identity subject to match your Sanity ID
+      }
+      return token
+    },
+
+    // 🟢 STEP 2: Read that precise ID straight out from the token payload and expose it to client-side session hooks
     async session({ session, token }) {
-      if (session.user && token.sub) {
-        (session.user as any).id = token.sub
+      if (session.user) {
+        (session.user as any).id = token.id || token.sub
       }
       return session
     },

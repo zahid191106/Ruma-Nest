@@ -8,8 +8,8 @@ import { LayoutDashboard, Building, Car, BedIcon, User, LogOut, ChevronLeft, Che
 interface SideBarProps {
   isOpen: boolean;
   onClose: () => void;
-  activeTab: 'property' | 'carlift' | 'roommate' | 'setting';
-  setActiveTab: (tab: 'property' | 'carlift' | 'roommate' | 'setting') => void;
+  activeTab: 'dashboard' | 'property' | 'carlift' | 'roommate' | 'setting';
+  setActiveTab: (tab: 'dashboard' | 'property' | 'carlift' | 'roommate' | 'setting') => void;
 }
 
 export default function SideBar({ isOpen, onClose, activeTab, setActiveTab }: SideBarProps) {
@@ -17,6 +17,7 @@ export default function SideBar({ isOpen, onClose, activeTab, setActiveTab }: Si
 
   // Mapped cleanly to match lower-case router state tags in parent view controller
   const menuItems = [
+    { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'property', name: 'My Properties', icon: Building },
     { id: 'carlift', name: 'My Car Lifts', icon: Car },
     { id: 'roommate', name: 'Roommate Finder', icon: BedIcon },

@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-background-rumanest-light font-sans text-gray-900 overflow-x-hidden"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle 1450px at 20% 20%, #f984e5, transparent),
-          radial-gradient(circle 1450px at 70% 70%, #f984e5, transparent)
-        `,
+    <div className="min-h-screen bg-linear-to-tr from-pink-50 via-white to-purple-50 overflow-x-hidden"
+      // style={{
+      //   backgroundImage: `
+      //     radial-gradient(circle 1450px at 20% 20%, #f984e5, transparent),
+      //     radial-gradient(circle 1450px at 70% 70%, #f984e5, transparent)
+      //   `,
        
-      }}
+      // }}
     
     >
       <Navbar />

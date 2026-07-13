@@ -28,6 +28,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       imageAssets, 
       amenities, 
       whatsappNumber,
+      nationality,
       status 
     } = body;
 
@@ -42,6 +43,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     if (moveIn) updatePayload.moveIn = moveIn;
     if (whatsappNumber) updatePayload.whatsappNumber = whatsappNumber;
     if (status) updatePayload.status = status;
+    if (nationality) updatePayload.nationality = nationality;
     if (amenities) updatePayload.amenities = amenities;
     if (freeSpace !== undefined) updatePayload.freeSpace = Number(freeSpace);
 

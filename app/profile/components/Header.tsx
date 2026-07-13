@@ -3,19 +3,29 @@
 
 import React from 'react';
 import { ArrowBigLeftDashIcon } from 'lucide-react';
+import imageUrlBuilder from '@sanity/image-url';
+import { client } from '@/sanity/lib/client';
+import { UserProfileData } from '@/types/user-dashboard';
+
+// Initialize the official Sanity image helper builder
+const builder = imageUrlBuilder(client);
+function urlFor(source: any) {
+  return builder.image(source);
+}
 
 interface HeaderProps {
-  onToggleSidebar?: () => void; // Optional if sidebar state is handled later
-  userProfile?: { 
-    name: string; 
-    avatarUrl?: string; 
-  };
+  onToggleSidebar?: () => void;
+  userProfile: UserProfileData | null; // Accept lifted parent user profile state
 }
 
 export default function Header({ onToggleSidebar, userProfile }: HeaderProps) {
   // Gracefully grab first name token or fallback to Guest safely
   const firstName = (userProfile?.name || 'Guest').split(' ')[0];
-  const userAvatar = userProfile?.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100";
+  
+  // 🚀 Dynamic Avatar Fallback: Resolves via the official builder or applies default placeholder image
+  const userAvatar = userProfile?.avatar?.asset?._ref 
+    ? urlFor(userProfile.avatar).width(100).height(100).url() 
+    : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100";
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-md px-10 py-3 flex items-center justify-between shrink-0">
@@ -34,7 +44,7 @@ export default function Header({ onToggleSidebar, userProfile }: HeaderProps) {
         </button>
         
         <div className="flex items-center space-x-2">
-          {/* Logo fallbacks: adjust dimensions/paths if your assets live under /public */}
+          {/* Logo fallbacks */}
           <img src="/images/logo.png" alt="Logo" className="h-15 w-full hidden md:block object-contain" />
           <img src="/images/ruma-logo.svg" alt="Logo" className="h-8 w-full md:hidden object-contain" />
         </div>
@@ -43,21 +53,22 @@ export default function Header({ onToggleSidebar, userProfile }: HeaderProps) {
       <div className="flex items-center space-x-4 md:space-x-6">
         <a 
           href="/"
-          className="relative p-2 flex items-center gap-2 text-slate-500 hover:text-[#F42A63] bg-slate-200 hover:bg-rose-50 shadow-sm rounded-lg cursor-pointer transition-colors text-xs font-semibold"
+          className="relative p-2 flex items-center gap-2 text-pink-600 hover:text-pink-700 bg-pink-200 hover:bg-pink-300 shadow-sm rounded-lg cursor-pointer transition-colors text-xs font-semibold"
         >
           <ArrowBigLeftDashIcon className="w-4 h-4" />
           Back to Home
         </a>
 
         <div className="flex items-center space-x-2 border-l pl-4 border-slate-200">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src={userAvatar} 
             alt={userProfile?.name || "User Profile"} 
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-rose-50"
+            className="w-12 h-12 rounded-full object-cover ring-2 ring-rose-50"
           />
           <div className="hidden lg:block text-left">
-            <span className="text-xs text-slate-400 block -mb-0.5">Welcome back</span>
-            <span className="font-bold text-slate-800 text-sm">{firstName}</span>
+            <span className="text-sm text-purple-700 block -mb-0.5">Welcome back</span>
+            <span className="font-bold text-pink-600 text-lg">{firstName}</span>
           </div>
         </div>
       </div>

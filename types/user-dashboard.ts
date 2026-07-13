@@ -6,6 +6,28 @@ export interface SanityImage {
   };
 }
 
+// User Profile Model
+export interface UserProfileData {
+  _id: string;
+  _type: 'user';
+  name: string;
+  email: string;
+  whatsappNumber?: string;
+  role?: 'user' | 'driver' | 'landlord' | 'admin';
+  isActive: boolean;
+  avatar?: {
+    _type: 'image';
+    asset: {
+      _type: 'reference';
+      _ref: string;
+    };
+  };
+  favorites?: Array<{
+    _type: 'reference';
+    _ref: string;
+  }>;
+}
+
 // Property Module Model
 export interface PropertyListing {
   _id: string;
@@ -55,9 +77,25 @@ export interface CarLiftService {
 // Roommate Module Model (Ready for next step)
 export interface RoommateProfile {
   _id: string;
-  preferredLocation: string;
-  budgetMax: number;
-  genderPreference: 'male' | 'female' | 'any';
-  aboutMe: string;
-  status: 'active' | 'inactive';
+  _type: 'roommateListing';
+  isActive: boolean;
+  title: string;
+  location: string;
+  gender: 'men' | 'female' | 'couple';
+  nationality: string;
+  freeSpace: number;
+  price: {
+    amount: number;
+    billingCycle: 'weekly' | 'monthly';
+  };
+  moveIn: 'immediately' | '1_week' | '2_weeks' | 'next_month';
+  images?: any[];
+  amenities: string[];
+  whatsappNumber: string;
+  status: 'available' | 'rented';
+  author?: {
+    _id: string;
+    name?: string;
+    email?: string;
+  };
 }
