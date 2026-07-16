@@ -184,11 +184,11 @@ export default function FeaturedProperties() {
                     loading="lazy"
                   />
                   {/* purpose tag Overlay */}
-                  <span className="absolute top-4 left-4 bg-[#ff0066] text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-full uppercase">
+                  <span className="absolute top-4 left-4 bg-[#aca5a8] text-white text-xs font-black tracking-widest px-3.5 py-1.5 rounded-full uppercase">
                       {prop.purpose}
                   </span>
 
-                  <span className="absolute bottom-3 left-3 bg-[#ff0066] text-white text-xs font-black tracking-wider px-4 py-1 rounded-full uppercase shadow-sm">
+                  <span className="absolute top-3 right-3 bg-[#aca5a8] text-white text-xs font-black tracking-wider px-4 py-1 rounded-full uppercase shadow-sm">
                     {prop.propertyType?.replace('_', ' ')}
                   </span>
                 </div>
@@ -199,13 +199,13 @@ export default function FeaturedProperties() {
                   {/* Location & Pricing */}
                   <div className="space-y-1">
                     <div className="flex items-center gap-1 text-slate-800">
-                      <span className="text-xs sm:text-base font-bold tracking-tight text-pink-600 truncate block max-w-[200px]">
+                      <span className="text-xs sm:text-base font-bold tracking-tight text-slate-600 truncate block max-w-50">
                         {prop.title}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-slate-800">
                       <MapPin className="w-4 h-4 text-slate-700 stroke-[2.5]" />
-                      <span className="text-xs sm:text-sm tracking-tight text-slate-800 truncate block max-w-[200px]">
+                      <span className="text-xs sm:text-sm tracking-tight text-slate-800 truncate block max-w-50">
                         {prop.location}
                       </span>
                     </div>
@@ -247,7 +247,7 @@ export default function FeaturedProperties() {
                   </div>
 
                   {/* Footer Action Bar */}
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between gap-5 pt-3 border-t border-slate-100">
                     <span className={`text-[10px] font-black tracking-wider px-2.5 py-1 rounded-full border ${
                       prop.status === "active" 
                         ? 'bg-green-100 text-green-700 border-green-200' 
@@ -261,10 +261,16 @@ export default function FeaturedProperties() {
                       href={`https://wa.me/${prop.contactDetails?.whatsappPhone || '97150000000'}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 bg-[#25d366] hover:bg-[#20ba59] text-white rounded-full transition-transform active:scale-95 shadow-md"
+                      className="group flex items-center h-10 w-10 hover:w-30 justify-start pl-3 bg-[#25d366] hover:bg-[#20ba59] text-white rounded-full transition-all duration-300 ease-in-out active:scale-95 shadow-md overflow-hidden"
                       title="Contact on WhatsApp"
                     >
-                      <SiWhatsapp className="w-4 h-4" />
+                      {/* Icon remains fixed on the left */}
+                      <SiWhatsapp className="w-4 h-4 shrink-0" />
+
+                      {/* Text slides out and fades in */}
+                      <span className="ml-0 opacity-0 max-w-0 group-hover:ml-2 group-hover:opacity-100 group-hover:max-w-xs transition-all duration-300 ease-in-out whitespace-nowrap text-sm font-medium">
+                        WhatsApp
+                      </span>
                     </Link>
                   </div>
 
