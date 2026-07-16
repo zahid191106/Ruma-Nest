@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     if (!authorId) {
-      authorId = "9ad23d3e-dff9-45d1-91e0-6c3bbbc4f47a"; 
+      authorId = "2cc8a8a3-23f4-420d-8794-e7b1d2d9b0ae"; 
     }
 
     const formData = await request.formData();
