@@ -10,24 +10,17 @@ import Footer from "@/components/Footer";
 
 
 export const metadata: Metadata = {
-  title: "Ruma Nest Property | Dubai's Premium Property Dealer",
-  description: "The premier verified listing platform in Abu Dhabi. We connect thousands of property owners, roommates, and car lifters every single day with secure, direct communications.",
-  keywords: [
-    "used cars Dublin",
-    "Ireland car dealership",
-    "NCT ready cars",
-    "Irish car finance",
-    "premium used cars",
-  ],
+  title: "Ruma Nest | Verified Properties, Roommates & Car Lifts in UAE",
+  description: "The premier verified listing platform in Dubai & Abu Dhabi. Connect directly with property owners, find roommates, share bedspaces, and discover daily car lift routes safely.",
   alternates: {
-    canonical: "https://www.shahmotors.ie",
+    canonical: "https://www.rumanest.com",
   },
   openGraph: {
-    title: "ShahMotors | Ireland's Premium Used Car Dealer",
-    description: "Shop verified used cars in Dublin and across Ireland with ShahMotors. Transparent pricing, finance support, and NCT-ready vehicles.",
+    title: "Ruma Nest | Premium Properties, Roommates & Car Lifts in UAE",
+    description: "Find verified apartments, flatmates, bedspaces, and daily car lift routes across Dubai, Abu Dhabi, and Sharjah.",
     type: "website",
-    locale: "en_IE",
-    images: ["/logo-car.png"],
+    locale: "en_AE",
+    images: ["/logo.png"],
   },
 };
 

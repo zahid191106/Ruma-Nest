@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block next-auth paths and backend API routes from search engines
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://www.rumanest.com/sitemap.xml

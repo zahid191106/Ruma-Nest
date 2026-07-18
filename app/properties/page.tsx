@@ -5,8 +5,18 @@ import AllProperties from '@/components/AllProperties';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Properties | Ruma Nest',
-  description: 'Browse listed properties on Ruma Nest',
+  title: "Properties for Rent & Sale in Dubai & Abu Dhabi | Ruma Nest",
+  description: "Explore verified residential listings, apartments, studios, and commercial properties across the UAE. Deal directly with landlords and owners.",
+  alternates: {
+    canonical: "https://www.rumanest.com/properties",
+  },
+  openGraph: {
+    title: "Properties for Rent & Sale in UAE | Ruma Nest",
+    description: "Browse thousands of verified property listings in Dubai, Abu Dhabi, and Sharjah with direct owner contact.",
+    type: "website",
+    locale: "en_AE",
+    images: ["/logo.png"],
+  },
 };
 
 export default function Page() {

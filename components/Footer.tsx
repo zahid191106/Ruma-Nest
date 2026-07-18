@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   Search, 
   MapPin, 
@@ -15,7 +16,8 @@ import {
   Award,
   ArrowRightIcon,
   ArrowDownRightFromCircle,
-  User2Icon
+  User2Icon,
+  Home
 } from 'lucide-react';
 
 import { SiWhatsapp, SiFacebook, SiInstagram, SiX, SiTiktok, SiYoutube, SiLinkerd } from '@icons-pack/react-simple-icons';
@@ -42,6 +44,13 @@ export default function App() {
     }, 4000);
   };
 
+  const navItems = [
+    { name: "Home", path: "/" },
+    { name: "Properties", path: "/properties" },
+    { name: "RoomMate", path: "/roommate" },
+    { name: "Car Lifts", path: "/car-lifts" },
+    { name: "Blog", path: "/blog" }
+  ];
   // Footer
   const currentYear = new Date().getFullYear();
   const features = [
@@ -243,8 +252,7 @@ export default function App() {
                 "Room",
                 "Studio",
                 "Bed Space",
-                "Apartment",
-                "Car Lift"
+                "Apartment"
               ].map((item, index) => (
                 <li key={index}>
                   <button 
@@ -280,11 +288,11 @@ export default function App() {
             {/* Header with Location pin inside solid pink gradient circle */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-linear-to-tr from-pink-500 to-rose-600 flex items-center justify-center text-white shadow-md">
-                <MapPin className="w-5 h-5 stroke-3" />
+                <Home className="w-5 h-5 stroke-3" />
               </div>
               <div className="flex flex-col">
                 <h3 className="text-white font-extrabold text-base tracking-wider uppercase">
-                  Popular Areas
+                  Pages
                 </h3>
                 <div className="h-0.5 w-12 bg-pink-500 mt-1"></div>
               </div>
@@ -292,19 +300,13 @@ export default function App() {
 
             {/* List Items */}
             <ul className="text-base z-10">
-              {[
-                "Al Wahda",
-                "Mussafah",
-                "Khalifa City",
-                "Tourist Club Area",
-                "Mohammed Bin Zayed",
-                "Al Reem Island"
-              ].map((item, index) => (
+              {navItems.map((item, index) => (
                 <li key={index}>
-                  <button 
-                    onClick={() => handleAreaClick(item)}
+                  <Link 
+                    href={item.path}
+                    onClick={() => handleAreaClick(item.name)}
                     className={`group flex items-center space-x-2 text-left cursor-pointer transition-colors duration-200 w-full py-1 ${
-                      activeArea === item 
+                      activeArea === item.name 
                         ? 'text-pink-400 font-bold' 
                         : 'text-slate-300 hover:text-pink-400'
                     }`}
@@ -312,11 +314,11 @@ export default function App() {
                     <span className="text-pink-500 font-semibold text-xs tracking-wider transition-transform duration-200 group-hover:translate-x-1">
                       <ArrowDownRightFromCircle className='w-5 h-5 mb-3' />
                     </span>
-                    <span>{item}</span>
-                    {activeArea === item && (
+                    <span>{item.name}</span>
+                    {activeArea === item.name && (
                       <span className="ml-auto w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_8px_#ec4899]"></span>
                     )}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>

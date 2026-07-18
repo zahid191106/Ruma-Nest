@@ -5,8 +5,18 @@ import RoomMate from '@/components/RoomMate';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Properties | Ruma Nest',
-  description: 'Browse listed properties on Ruma Nest',
+  title: "Find Roommates & Bedspaces in Dubai & UAE | Ruma Nest",
+  description: "Looking for a flatmate or cheap bedspace in Dubai, Abu Dhabi, or Sharjah? Browse thousands of verified profiles to find your perfect roommate setup safely.",
+  alternates: {
+    canonical: "https://www.rumanest.com/roommate",
+  },
+  openGraph: {
+    title: "Find Roommates & Shared Bedspaces in UAE | Ruma Nest",
+    description: "Connect with verified flatmates and discover shared accommodation options across major UAE cities.",
+    type: "website",
+    locale: "en_AE",
+    images: ["/logo.png"],
+  },
 };
 
 export default function Page() {

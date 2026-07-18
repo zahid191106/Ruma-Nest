@@ -119,15 +119,15 @@ export default function App() {
                         {/* Utility Tools on Navbar Right */}
                         <div className="flex items-center gap-2.5 sm:gap-4 z-20">
                             {/* Theme toggle */}
-                            <button onClick={()=> setDarkMode(!darkMode)}
+                            {/* <button onClick={()=> setDarkMode(!darkMode)}
                                 className="p-2 rounded-full hover:bg-white/10 text-slate-300 transition-colors cursor-pointer"
                                 aria-label="Toggle dark mode"
                                 >
                                 {darkMode ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5" />}
-                            </button>
+                            </button> */}
 
                             {/* Favorites Trigger */}
-                            <button onClick={()=> setActiveTab('Favorites')}
+                            {/* <button onClick={()=> setActiveTab('Favorites')}
                                 className="p-2 rounded-full hover:bg-white/10 text-slate-300 relative transition-colors cursor-pointer"
                                 >
                                 <Heart className={`w-5 h-5 ${favorites.length> 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
@@ -136,7 +136,7 @@ export default function App() {
                                         {favorites.length}
                                     </span>
                                     )}
-                            </button>
+                            </button> */}
 
                             {/* Show user avatar when logged in, otherwise show login icon */}
                             {session?.user?.email ? (
